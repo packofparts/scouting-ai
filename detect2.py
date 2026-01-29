@@ -1,4 +1,7 @@
 import os, sys, time, math
+from dotenv import load_dotenv
+
+load_dotenv()
 
 start = time.time()
 
@@ -65,7 +68,7 @@ def json_sink_callback(prediction, video_frame):
 pipeline = InferencePipeline.init(
     video_reference=input_video_path,
     model_id=model_id,
-    api_key="hwJkbDRlSQoOIEnYGVT6", 
+    api_key=os.getenv("ROBOFLOW_API_KEY"), 
     on_prediction=render_boxes,#json_sink_callback,
     max_fps=target_fps
     #api_url="http://localhost:9001", # Connect to your local inference server
@@ -81,5 +84,6 @@ print(" Done!")
 output.write_and_close()
 
 print(f"Wrote file (took {time.time() - start} seconds)")
+
 
 sys.stdout.flush()
