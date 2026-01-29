@@ -4,6 +4,9 @@ import json
 import os
 import time
 from roboflow import Roboflow
+from dotenv import load_dotenv
+
+load_dotenv()
 
 dir_path = "videoplayback.mp4"#os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'temp/trimmed.mp4'))
 
@@ -17,7 +20,7 @@ def enablePrint():
     
 #blockPrint()
 
-rf = Roboflow(api_key="hwJkbDRlSQoOIEnYGVT6")
+rf = Roboflow(api_key=os.getenv("ROBOFLOW_API_KEY"))
 project = rf.workspace().project("1294-ai-scouting")
 model = project.version("8").model
 
@@ -47,5 +50,6 @@ f.write(parsed)
 f.close()
 
 print(f"Wrote file (took {end - start} seconds)")
+
 
 sys.stdout.flush()
