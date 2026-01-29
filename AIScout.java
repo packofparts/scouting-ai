@@ -1,19 +1,19 @@
 public class AIScout {
-    private int autoFrameIndex = -1;
-    private int teleFrameIndex = -1;
+    private static int autoFrameIndex = -1;
+    private static int teleFrameIndex = -1;
     //team numbers in memoriam
-    private String red1Team = "1844";
-    private String red2Team = "2907";
-    private String red3Team = "3588";
-    private String blue1Team = "4918";
-    private String blue2Team = "5827";
-    private String blue3Team = "10498";
+    private static final String RED1 = "1844";
+    private static final String RED2 = "2907";
+    private static final String RED3 = "3588";
+    private static final String BLUE1 = "4918";
+    private static final String BLUE2 = "5827";
+    private static final String BLUE3 = "10498";
     
     //Relative locations of field joints (i.e. 0.5 is half of the screen)
-    private Point topLeft = new Point(0, 0);
-    private Point bottomLeft = new Point(0, 0);
-    private Point topRight = new Point(0, 0);
-    private Point bottomRight = new Point(0, 0);
+    private static final Point TOP_LEFT = new Point(0, 0);
+    private static final Point BOTTOM_LEFT = new Point(0, 0);
+    private static final Point TOP_RIGHT = new Point(0, 0);
+    private static final Point BOTTOM_RIGHT = new Point(0, 0);
 
     public static void main(String[] args) {
         Point[][] detections = detect();

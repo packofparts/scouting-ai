@@ -1,7 +1,7 @@
 import os, sys, time, math
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(dotenv_path="api_key.env")
 
 start = time.time()
 
@@ -30,7 +30,7 @@ dir_path = ""#os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 't
 
 
 model_id = "1294-ai-scouting/8"
-input_video_path = "matches/sample.mp4"
+input_video_path = "matches/match.mp4"
 output_path = "temp/output.json"
 
 target_fps = 10
@@ -69,7 +69,7 @@ pipeline = InferencePipeline.init(
     video_reference=input_video_path,
     model_id=model_id,
     api_key=os.getenv("ROBOFLOW_API_KEY"), 
-    on_prediction=render_boxes,#json_sink_callback,
+    on_prediction=json_sink_callback,
     max_fps=target_fps
     #api_url="http://localhost:9001", # Connect to your local inference server
 )

@@ -6,10 +6,9 @@ import time
 from roboflow import Roboflow
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(dotenv_path="api_key.env")
 
-dir_path = "videoplayback.mp4"#os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'temp/trimmed.mp4'))
-
+dir_path = "matches/match.mp4"
 # Disable
 def blockPrint():
     sys.stdout = open(os.devnull, 'w')
@@ -43,7 +42,7 @@ enablePrint()
 parsed = json.dumps(results, indent=4, sort_keys=True)
 
 # Forgot to add this, add tonight
-write_path = "output.json"#os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'temp/robotoutput.json'))
+write_path = "temp/output.json"#os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'temp/robotoutput.json'))
 
 f = open(write_path, "w")
 f.write(parsed)
