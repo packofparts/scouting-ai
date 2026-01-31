@@ -1,7 +1,8 @@
 import os, sys, time, math
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path="api_key.env")
+#Please create a file named ".env" and set ROBOFLOW_API_KEY to your roboflow api key
+load_dotenv(dotenv_path=".env")
 
 start = time.time()
 

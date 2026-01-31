@@ -6,7 +6,8 @@ import time
 from roboflow import Roboflow
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path="api_key.env")
+#Please create a file named ".env" and set ROBOFLOW_API_KEY to your roboflow api key
+load_dotenv(dotenv_path=".env")
 
 dir_path = "matches/match.mp4"
 # Disable
