@@ -19,7 +19,7 @@ public class AIScout {
         Point[][] detections = detect();
         FRCRobot[] robots = {};
 
-        //find the first frame with 6 robots detected
+        // TODO: find the first frame with 6 robots detected
         //Insert 6 FRCRobot objects into robot with corresponding team numbers and positions
 
         //For every frame, assign robots new positions using Hungarian Algorithm and writes data to robot files
@@ -37,6 +37,7 @@ public class AIScout {
 
     public static double estimateYcoord(double robotYcoord, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight, int iterations, double bound0, double bound1){
         //TODO Estimates the robot's y-coord with pose estimation
+        
 
         //If iterations == 0 return the average of bound0 and bound1
 
