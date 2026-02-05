@@ -2,7 +2,9 @@ import os, sys, time, math
 from dotenv import load_dotenv
 
 #Please create a file named ".env" and set ROBOFLOW_API_KEY to your roboflow api key
-load_dotenv(dotenv_path=".env")
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_dotenv_path = os.path.join(_SCRIPT_DIR, ".env")
+load_dotenv(dotenv_path=_dotenv_path if os.path.exists(_dotenv_path) else ".env")
 
 start = time.time()
 
@@ -30,9 +32,34 @@ dir_path = ""#os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 't
 
 
 
-model_id = "1294-ai-scouting/8"
-input_video_path = "matches/match.mp4"
-output_path = "temp/output.json"
+model_id = "1294-ai-scouting/10"
+_default_input_video_path = os.path.join("matches", "match.mp4")
+input_video_path = sys.argv[1] if len(sys.argv) > 1 else _default_input_video_path
+_default_output_path = os.path.join(_SCRIPT_DIR, "temp", "output.json")
+output_path = sys.argv[2] if len(sys.argv) > 2 else _default_output_path
+
+def _resolve_existing_path(path: str) -> str:
+    if os.path.isabs(path) and os.path.exists(path):
+        return path
+
+    cwd_candidate = os.path.abspath(path)
+    if os.path.exists(cwd_candidate):
+        return cwd_candidate
+
+    script_candidate = os.path.abspath(os.path.join(_SCRIPT_DIR, path))
+    if os.path.exists(script_candidate):
+        return script_candidate
+
+    raise FileNotFoundError(
+        f"Input video not found: '{path}'. Tried:\n"
+        f"- {cwd_candidate}\n"
+        f"- {script_candidate}\n"
+        "Pass the video path as an argument, e.g. `python detect2.py matches/match.mp4`"
+    )
+
+input_video_path = _resolve_existing_path(input_video_path)
+output_path = os.path.abspath(output_path)
+os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
 target_fps = 10
 total_frames = mp.VideoFileClip(input_video_path).n_frames

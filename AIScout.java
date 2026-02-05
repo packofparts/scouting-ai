@@ -1,3 +1,10 @@
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class AIScout {
     private static int autoFrameIndex = -1;
     private static int teleFrameIndex = -1;
@@ -28,13 +35,43 @@ public class AIScout {
     }
 
     public static Point[][] detect(){
-        //TODO run detector, read the output, and save robot detections as a list of list of position-estimated points.  
+        ObjectMapper mapper = new ObjectMapper();
+        // Run detector, then read the output
+        File file = new File("temp/output.json");
+        ArrayList<ArrayList<Point>> allDetections = new ArrayList<>();
+        try {
+            List<detection> detections = mapper.readValue(file, new TypeReference<List<detection>>(){});
+            int prevFrame = -1;
+            for (detection det : detections) {
+                if(det.getClass_name().equals("Robot")){
+                    double centerX = (det.getX_min() + det.getX_max()) / 2.0;
+                    double centerY = (det.getY_min() + det.getY_max()) / 2.0;
+                    centerX = centerX / 1280.0;
+                    centerY = centerY / 720.0;
+                    
+                    if(prevFrame != det.getFrame_id()){
+                        ArrayList<Point> frameDetections = new ArrayList<>();
+                        frameDetections.add(new Point(centerX, centerY));
+                        allDetections.add(frameDetections);
+                        prevFrame = det.getFrame_id();
+                    } else {
+                        allDetections.get(allDetections.size() - 1).add(new Point(centerX, centerY));
+                    }
+                }
 
-        //TODO set autoFrameIndex to the first frame where auto appears
-        //TODO set teleFrameIndex to the first frame where teleop appears AFTER autoFrameIndex
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
+    /** Runs the Python detector script to produce temp/output.json. */
+    
+
+
+    
     public static double estimateYcoord(double robotYcoord, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight, int iterations, double bound0, double bound1){
         //TODO Estimates the robot's y-coord with pose estimation
 
