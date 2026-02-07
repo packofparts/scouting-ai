@@ -1,4 +1,4 @@
-
+import java.util.Optional;
 
 public class AIScout {
     private static int autoFrameIndex = -1;
@@ -36,24 +36,24 @@ public class AIScout {
         return null;
     }
 
-    public static double estimateYcoord(Point robot, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight, int iterations, double bound0, double bound1){
+    public static Optional<Double> estimateYcoord(Point robot, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight, int iterations, double bound0, double bound1){
         //TODO Estimates the robot's y-coord with pose estimation
 
 
         if (iterations == 0) {
-            return (bound0 + bound1) / 2;
+            return Optional.of((bound0 + bound1) / 2);
         }
 
         //Create a line through topLeft and topRight
         Line lineTop = new Line(topLeft, topRight);
         if (!lineTop.isAbove(robot)) {
-            return -1;
+            return Optional.empty();
         }
 
         //Create a line through bottomLeft and bottomRight
         Line lineBottom = new Line(bottomLeft, bottomRight);
         if (lineBottom.isAbove(robot)) {
-            return -1;
+            return Optional.empty();
         }
 
         //Create a line through topLeft and bottomRight
@@ -83,9 +83,12 @@ public class AIScout {
         return estimateYcoord(robot, leftIntersect, rightIntersect, bottomLeft, bottomRight, iterations - 1, (bound0 + bound1) / 2, bound1);
     }
 
-    public static double estimateXcoord(Point robot, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight, int iterations, double bound0, double bound1){
-        double result = estimateYcoord(robot.invert(), topRight.invert(), bottomRight.invert(), topLeft.invert(), bottomLeft.invert(), iterations, bound0, bound1);
-        return result == -1 ? -1 : 1-result;
+    public static Optional<Double> estimateXcoord(Point robot, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight, int iterations, double bound0, double bound1){
+        Optional<Double> result = estimateYcoord(robot.invert(), topRight.invert(), bottomRight.invert(), topLeft.invert(), bottomLeft.invert(), iterations, bound0, bound1);
+        if (result.isPresent()) {
+            return Optional.of(1 - result.get().doubleValue());
+        }
+        return Optional.empty();
     }
     
 }
