@@ -10,15 +10,10 @@ public class AIScout {
     private static final String BLUE3 = "10498";
     
     //Relative locations of field joints (i.e. 0.5 is half of the screen)
-    private static final Point TOP_LEFT = new Point(0, 0);
-    private static final Point BOTTOM_LEFT = new Point(0, 0);
-    private static final Point TOP_RIGHT = new Point(0, 0);
-    private static final Point BOTTOM_RIGHT = new Point(0, 0);
 
     public static void main(String[] args) {
         Point[][] detections = detect();
         FRCRobot[] robots = {};
-
         //find the first frame with 6 robots detected
         //Insert 6 FRCRobot objects into robot with corresponding team numbers and positions
 
@@ -45,13 +40,13 @@ public class AIScout {
 
         //Create a line through topLeft and topRight
         Line lineTop = new Line(topLeft, topRight);
-        if (lineTop.isAbove(robot)) {
+        if (!lineTop.isAbove(robot)) {
             return -1;
         }
 
         //Create a line through bottomLeft and bottomRight
         Line lineBottom = new Line(bottomLeft, bottomRight);
-        if (!lineBottom.isAbove(robot)) {
+        if (lineBottom.isAbove(robot)) {
             return -1;
         }
 
@@ -74,7 +69,7 @@ public class AIScout {
         Point rightIntersect = lineMid.intersection(sideRight);
        
         //If point is above this line, then call recursively on the top half;
-        if (lineMid.isAbove(robot)) {
+        if (!lineMid.isAbove(robot)) {
             return estimateYcoord(robot, topLeft, topRight, leftIntersect, rightIntersect, iterations - 1, bound0, (bound0 + bound1) / 2);
         }
 
@@ -83,7 +78,8 @@ public class AIScout {
     }
 
     public static double estimateXcoord(Point robot, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight, int iterations, double bound0, double bound1){
-        return estimateYcoord(robot, topRight, bottomRight, topLeft, bottomLeft, iterations, bound0, bound1);
+        double result = estimateYcoord(robot.invert(), topRight.invert(), bottomRight.invert(), topLeft.invert(), bottomLeft.invert(), iterations, bound0, bound1);
+        return result == -1 ? -1 : 1-result;
     }
     
 }
