@@ -1,7 +1,7 @@
 public class Line {
     //Linear line in y = mx + b format
-    private final double m; //Slope
-    private final double b; //Y-intercept
+    private final double m = 0; //Slope
+    private final double b = 0; //Y-intercept
     
     public Line(double m, double b){
         //TODO initialize instance variables
