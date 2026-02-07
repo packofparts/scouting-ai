@@ -11,4 +11,7 @@ public class Point {
     public double getY(){
         return y;
     }
+    public Point invert(){
+        return new Point(y, -x);
+    }
 }
