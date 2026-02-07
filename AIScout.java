@@ -19,7 +19,7 @@ public class AIScout {
         Point[][] detections = detect();
         FRCRobot[] robots = {};
 
-        // TODO: find the first frame with 6 robots detected
+        //find the first frame with 6 robots detected
         //Insert 6 FRCRobot objects into robot with corresponding team numbers and positions
 
         //For every frame, assign robots new positions using Hungarian Algorithm and writes data to robot files
@@ -35,37 +35,55 @@ public class AIScout {
         return null;
     }
 
-    public static double estimateYcoord(double robotYcoord, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight, int iterations, double bound0, double bound1){
+    public static double estimateYcoord(Point robot, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight, int iterations, double bound0, double bound1){
         //TODO Estimates the robot's y-coord with pose estimation
-        
 
-        //If iterations == 0 return the average of bound0 and bound1
+
+        if (iterations == 0) {
+            return (bound0 + bound1) / 2;
+        }
 
         //Create a line through topLeft and topRight
-
-            //If the point is above this line, then the robot is outside of bounds and return -1
+        Line lineTop = new Line(topLeft, topRight);
+        if (lineTop.isAbove(robot)) {
+            return -1;
+        }
 
         //Create a line through bottomLeft and bottomRight
-
-            //If the point is below this line, then the robot is outside of bounds and return -1
+        Line lineBottom = new Line(bottomLeft, bottomRight);
+        if (!lineBottom.isAbove(robot)) {
+            return -1;
+        }
 
         //Create a line through topLeft and bottomRight
+        Line lineLeft = new Line(topLeft, bottomRight);
 
         //Create a line through bottomLeft and topRight
+        Line lineRight = new Line(bottomLeft, topRight);
 
         //Find the lines' intersect
+        Point intersect = lineLeft.intersection(lineRight);
 
         //Create a line with the lines' slopes averaged and passing through the intersect point
+        Line lineMid = new Line(intersect, (lineLeft.getSlope() + lineRight.getSlope()) / 2);
 
+        Line sideLeft = new Line(topLeft,bottomLeft);
+        Line sideRight = new Line(topRight, bottomRight);
+
+        Point leftIntersect = lineMid.intersection(sideLeft);
+        Point rightIntersect = lineMid.intersection(sideRight);
        
         //If point is above this line, then call recursively on the top half;
+        if (lineMid.isAbove(robot)) {
+            return estimateYcoord(robot, topLeft, topRight, leftIntersect, rightIntersect, iterations - 1, bound0, (bound0 + bound1) / 2);
+        }
 
         //Otherwise, call recursively on the bottom half
-        return 0;
+        return estimateYcoord(robot, leftIntersect, rightIntersect, bottomLeft, bottomRight, iterations - 1, (bound0 + bound1) / 2, bound1);
     }
 
-    public static double estimateXcoord(double robotXcoord, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight, int iterations, double bound0, double bound1){
-        return estimateYcoord(robotXcoord, topRight, bottomRight, topLeft, bottomLeft, iterations, bound0, bound1);
+    public static double estimateXcoord(Point robot, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight, int iterations, double bound0, double bound1){
+        return estimateYcoord(robot, topRight, bottomRight, topLeft, bottomLeft, iterations, bound0, bound1);
     }
     
 }
