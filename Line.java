@@ -18,7 +18,10 @@ public class Line {
     }
 
     public Line(Point p1, Point p2){
-        this.m = (p2.getY() - p1.getY()) / (p2.getX() - p1.getX());
+        if(p1.getX() == p2.getX()){
+            this.m = (p2.getY() - p1.getY()) / ((p2.getX()+0.00000000001) - p1.getX());
+
+        }else{this.m = (p2.getY() - p1.getY()) / (p2.getX() - p1.getX());}
         this.b = p1.getY() - m * p1.getX();
         //TODO initialize instance variables
         //This is the point-point constructor

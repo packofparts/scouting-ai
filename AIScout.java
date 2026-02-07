@@ -12,10 +12,10 @@ public class AIScout {
     private static final String BLUE3 = "10498";
     
     //Relative locations of field joints (i.e. 0.5 is half of the screen)
-    //All x and y vals must differ by at least 0.05 to avoid errors in pose estimation
+    //All x vals must differ to avoid errors in pose estimation
     private static final Point TOP_LEFT = new Point(0.1, 0.1);
     private static final Point BOTTOM_LEFT = new Point(0, 0.85);
-    private static final Point TOP_RIGHT = new Point(0.67, 0.11);
+    private static final Point TOP_RIGHT = new Point(0.67, 0.1);
     private static final Point BOTTOM_RIGHT = new Point(0.9, 0.89);
 
     public static void main(String[] args) {
@@ -25,7 +25,6 @@ public class AIScout {
         //Insert 6 FRCRobot objects into robot with corresponding team numbers and positions
 
         //For every frame, assign robots new positions using Hungarian Algorithm and writes data to robot files
-
 
     }
 
