@@ -1,4 +1,4 @@
-public class detection {
+public class Detection {
     protected double x_min;
     protected double y_min;
     protected double x_max;
@@ -9,7 +9,7 @@ public class detection {
     protected int frame_id;
     protected int class_id;
 
-    public detection(){
+    public Detection(){
 
     }
     public double getX_min(){
