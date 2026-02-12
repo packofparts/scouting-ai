@@ -2,9 +2,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 
 public class AIScout {
@@ -28,6 +28,7 @@ public class AIScout {
     public static void main(String[] args) {
         ArrayList<ArrayList<Point>> detections = detect();
         FRCRobot[] robots = {};
+        
         //find the first frame with 6 robots detected
         //Insert 6 FRCRobot objects into robot with corresponding team numbers and positions
 
@@ -38,17 +39,34 @@ public class AIScout {
 
    
     public static ArrayList<ArrayList<Point>> detect(){
-        ObjectMapper mapper = new ObjectMapper();
         // Run detector, then read the output
         File file = new File("temp/output.json");
         ArrayList<ArrayList<Point>> allDetections = new ArrayList<>();
-
-        List<Detection> detections;
+    
+        ArrayList<Detection> detections = new ArrayList<>();
         try {
-            detections = mapper.readValue(file, new TypeReference<List<Detection>>(){});
-        } catch (IOException ex) {
-            return null;
+            String jsonContent = new String(Files.readAllBytes(Paths.get("temp/output.json")));
+            JSONArray detectionsArray = new JSONArray(jsonContent);
+
+            for (int i = 0; i < detectionsArray.length(); i++) {
+                JSONObject detectionObject = detectionsArray.getJSONObject(i);
+                Detection detection = new Detection();
+                detection.setClass_id(detectionObject.getInt("class_id"));
+                detection.setFrame_id(detectionObject.getInt("frame_id"));
+                detection.setClass_name(detectionObject.getString("class_name"));
+                detection.setConfidence(detectionObject.getDouble("confidence"));
+                detection.setTracker_id(detectionObject.getString("tracker_id"));
+                detection.setX_min(detectionObject.getDouble("x_min"));
+                detection.setX_max(detectionObject.getDouble("x_max"));
+                detection.setY_min(detectionObject.getDouble("y_min"));
+                detection.setY_max(detectionObject.getDouble("y_max"));
+                detections.add(detection);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
         int prevFrame = -1;
         for (Detection det : detections) {
             if(det.getClass_name().equals("Robot") || det.getClass_name().equals("Auto")){
