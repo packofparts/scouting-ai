@@ -1,3 +1,10 @@
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import java.util.Optional;
 
 public class AIScout {
@@ -19,8 +26,11 @@ public class AIScout {
     private static final Point BOTTOM_RIGHT = new Point(0.9, 0.89);
 
     public static void main(String[] args) {
-        Point[][] detections = detect();
+        ArrayList<ArrayList<Optional<Point>>> detections = detect();
         FRCRobot[] robots = {};
+        
+
+  
         //find the first frame with 6 robots detected
         //Insert 6 FRCRobot objects into robot with corresponding team numbers and positions
 
@@ -28,12 +38,62 @@ public class AIScout {
 
     }
 
-    public static Point[][] detect(){
-        //TODO run detector, read the output, and save robot detections as a list of list of position-estimated points.  
 
-        //TODO set autoFrameIndex to the first frame where auto appears
-        //TODO set teleFrameIndex to the first frame where teleop appears AFTER autoFrameIndex
-        return null;
+   
+    public static ArrayList<ArrayList<Optional<Point>>> detect(){
+        // Run detector, then read the output
+        File file = new File("temp/output.json");
+        ArrayList<ArrayList<Optional<Point>>> allDetections = new ArrayList<>();
+    
+        ArrayList<Detection> detections = new ArrayList<>();
+        try {
+            String jsonContent = new String(Files.readAllBytes(Paths.get("temp/output.json")));
+            JSONArray detectionsArray = new JSONArray(jsonContent);
+
+            for (int i = 0; i < detectionsArray.length(); i++) {
+                JSONObject detectionObject = detectionsArray.getJSONObject(i);
+                Detection detection = new Detection(detectionObject.getDouble("x_min"), detectionObject.getDouble("y_min"), detectionObject.getDouble("x_max"), detectionObject.getDouble("y_max"), detectionObject.getString("class_name"), detectionObject.getDouble("confidence"), detectionObject.getString("tracker_id"), detectionObject.getInt("frame_id"), detectionObject.getInt("class_id"), detectionObject.getInt("frame_width"), detectionObject.getInt("frame_height"));
+                detections.add(detection);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        int prevFrame = 0;
+        for (Detection det : detections) {
+            if(det.getClassName().equals("Robot") || det.getClassName().equals("Auto")){
+                double centerX = (det.getXMin() + det.getXMax()) / 2.0;
+                double centerY = (det.getYMin() + det.getYMax()) / 2.0;
+                centerX = centerX / det.getFrameWidth();
+                centerY = centerY / det.getFrameHeight();
+                
+                if(prevFrame != det.getFrameId()){
+                    ArrayList<Optional<Point>> frameDetections = new ArrayList<>();
+                    frameDetections.add(det.getClassName().equals("Auto") ? Optional.empty() : Optional.of(new Point(centerX, centerY)));
+                    allDetections.add(frameDetections);
+                    prevFrame = det.getFrameId();
+                } else {
+                    allDetections.get(allDetections.size() - 1).add(det.getClassName().equals("Auto") ? Optional.empty() : Optional.of(new Point(centerX, centerY)));
+                }
+            }
+
+        }
+        for(int i = 0; i < allDetections.size(); i++){
+            int nullIndex = allDetections.get(i).indexOf(Optional.empty());
+            boolean autoDetected = false;
+            while(nullIndex != -1) {
+                allDetections.get(i).remove(nullIndex);
+                nullIndex = allDetections.get(i).indexOf(Optional.empty());
+                autoDetected = true;
+            }
+            if(autoDetected && autoFrameIndex == -1) {
+                autoFrameIndex = i;
+            } else if(!autoDetected && autoFrameIndex != -1 && teleFrameIndex == -1) {
+                teleFrameIndex = i;
+            }
+        }
+        return allDetections;
     }
 
     public static Optional<Double> estimateYcoord(Point robot, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight, int iterations, double bound0, double bound1){

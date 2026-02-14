@@ -1,7 +1,7 @@
 import os, sys, time, math
 from dotenv import load_dotenv
 
-#Please create a file named ".env" and set ROBOFLOW_API_KEY to your roboflow api key
+
 load_dotenv(dotenv_path=".env")
 
 start = time.time()
@@ -26,11 +26,8 @@ import supervision as sv
 import moviepy as mp
 enablePrint()
 
-dir_path = ""#os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'temp/trimmed.mp4'))
 
-
-
-model_id = "1294-ai-scouting/8"
+model_id = "1294-ai-scouting/10"
 input_video_path = "matches/match.mp4"
 output_path = "temp/output.json"
 
@@ -52,6 +49,8 @@ def json_sink_callback(prediction, video_frame):
     # Append the detections (and optional custom data like frame metadata) 
     # to the JSON sink.
     sink_data = {
+        "frame_width": len(video_frame.image[0]),
+        "frame_height": len(video_frame.image),
         "frame_id": video_frame.frame_id,
         #"timestamp": video_frame.timestamp.isoformat(),
     }
