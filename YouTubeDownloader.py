@@ -35,7 +35,7 @@ class YTD_exceptions(Exception):
             print(f"Please check your internet connection! [error : {code} ]")
         else:
             print(f"{msg if msg is not None else 'Please contact your network administrator!'} [error : {code}]")
-        exit()
+        exit(1)
 
 
 class YouTubeDownloader():
@@ -209,7 +209,7 @@ class YouTubeDownloader():
                 print("Enter the integer corresponding to your choice")
             else:
                 if choice == 0:
-                    exit()
+                    exit(1)
                 elif 1 <= choice <= len(self.__stream_list):
                     break
                 else:

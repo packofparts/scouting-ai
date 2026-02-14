@@ -2,12 +2,16 @@ public class FRCRobot {
     private Point pos; //Position of the robot
     private String team; //Robot's team number
     public FRCRobot(Point pos, String team){
-        //TODO Initialize instance variables
+        this.pos = pos;
+        this.team = team;
     }
-    public void updatePosition(Point pos){
-        //TODO update robot's position
+    public void updatePosition(Point pos, boolean gameState){//gameState is true for auto, false for teleop
+        this.pos = pos;
     }
-    public void writeData(boolean gameState){ //True for auto, false for teleop
+    public void writeData(){ 
         //TODO write robot position data
+    }
+    public Point getPosition(){
+        return pos;
     }
 }
