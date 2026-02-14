@@ -3,22 +3,18 @@
 #Shoutout to Gemini for converting this from run.bat to run.sh!!!
 cd "$(dirname "$0")"
 
+set -o pipefail
+
 read -p "Need 2 run Video Downloader? (y/n): " download
 if [[ "$download" =~ ^[Yy]$ ]]; then
     python3 YouTubeDownloader.py
-    if [ $? -ne 0 ]; then
-        echo "Video Downloader failed with error code $?"
-        exit $?
-    fi
+    
 fi
 
 read -p "Need 2 run Detector? (y/n): " detect
 if [[ "$detect" =~ ^[Yy]$ ]]; then
     python3 detect2.py
-    if [ $? -ne 0 ]; then
-        echo "Detector failed with error code $?"
-        exit $?
-    fi
+    
 fi
 
 read -p "Need 2 run Analyzer? (y/n): " analyze
@@ -35,8 +31,4 @@ if [[ "$analyze" =~ ^[Yy]$ ]]; then
     
     java -cp "src:json" AIScout $red $blue
 
-    if [ $? -ne 0 ]; then
-        echo "Analyzer failed with error code $?"
-        exit $?
-    fi
 fi
