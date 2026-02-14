@@ -28,8 +28,7 @@ public class AIScout {
     public static void main(String[] args) {
         ArrayList<ArrayList<Optional<Point>>> detections = detect();
         FRCRobot[] robots = {};
-        System.out.println(autoFrameIndex);
-        System.out.println(teleFrameIndex);
+  
         //find the first frame with 6 robots detected
         //Insert 6 FRCRobot objects into robot with corresponding team numbers and positions
 
