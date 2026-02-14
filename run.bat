@@ -21,7 +21,7 @@ SET /p detect=
 
 IF /I "%detect%"=="y" (
 
-    call python detect2.py
+    call python detector.py
 
     IF !ErrorLevel! NEQ 0 (
         echo Detector failed with error code !ErrorLevel!
