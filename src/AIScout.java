@@ -28,6 +28,8 @@ public class AIScout {
     public static void main(String[] args) {
         ArrayList<ArrayList<Optional<Point>>> detections = detect();
         FRCRobot[] robots = {};
+        
+
   
         //find the first frame with 6 robots detected
         //Insert 6 FRCRobot objects into robot with corresponding team numbers and positions
@@ -58,7 +60,7 @@ public class AIScout {
             e.printStackTrace();
         }
 
-        int prevFrame = -1;
+        int prevFrame = 0;
         for (Detection det : detections) {
             if(det.getClassName().equals("Robot") || det.getClassName().equals("Auto")){
                 double centerX = (det.getXMin() + det.getXMax()) / 2.0;

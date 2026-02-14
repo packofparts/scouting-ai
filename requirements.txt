@@ -1,0 +1,8 @@
+pytubefix
+validators
+ffmpeg-python
+dotenv
+inference
+moviepy
+supervision
+roboflow

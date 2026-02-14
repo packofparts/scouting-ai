@@ -7,7 +7,7 @@ import urllib
 
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 MATCHES_DIR = os.path.join(_SCRIPT_DIR, "matches")
-OUTPUT_FILENAME = "matches.mp4"
+OUTPUT_FILENAME = "match.mp4"
 import socket
 import webbrowser
 from traceback import format_exc as traceback_format_exc
