@@ -1,71 +1,96 @@
 public class Detection {
-    protected double x_min;
-    protected double y_min;
-    protected double x_max;
-    protected double y_max;
-    protected String class_name;
+    protected double xMin;
+    protected double yMin;
+    protected double xMax;
+    protected double yMax;
+    protected String className;
     protected double confidence;
-    protected String tracker_id;
-    protected int frame_id;
-    protected int class_id;
+    protected String trackerId;
+    protected int frameWidth;
+    protected int frameHeight;
+    protected int frameId;
+    protected int classId;
+    
 
-    public Detection(){
-
+    public Detection(double xMin, double yMin, double xMax, double yMax, String className, double confidence, String trackerId, int frameId, int classId, int frameWidth, int frameHeight){
+        this.xMin = xMin;
+        this.yMin = yMin;
+        this.xMax = xMax;
+        this.yMax = yMax;
+        this.className = className;
+        this.confidence = confidence;
+        this.trackerId = trackerId;
+        this.frameId = frameId;
+        this.classId = classId;
+        this.frameWidth = frameWidth;
+        this.frameHeight = frameHeight;
     }
-    public double getX_min(){
-        return x_min;
+    public double getXMin(){
+        return xMin;
     }
-    public double getY_min(){
-        return y_min;
+    public double getYMin(){
+        return yMin;
     }
-    public double getX_max(){
-        return x_max;
+    public double getXMax(){
+        return xMax;
     }
-    public double getY_max(){
-        return y_max;
+    public double getYMax(){
+        return yMax;
     }
-    public String getClass_name(){
-        return class_name;
+    public String getClassName(){
+        return className;
     }
     public double getConfidence(){
         return confidence;
     }
-    public String getTracker_id(){
-        return tracker_id;
+    public String getTrackerId(){
+        return trackerId;
     }
-    public int getFrame_id(){
-        return frame_id;
+    public int getFrameId(){
+        return frameId;
     }
-    public int getClass_id(){
-        return class_id;
+    public int getClassId(){
+        return classId;
+    }
+    public int getFrameWidth(){
+        return frameWidth;
+    }
+    public int getFrameHeight() {
+        return frameHeight;
     }
 
-    public void setX_min(double x_min){
-        this.x_min = x_min;
+    public void setXMin(double xMin){
+        this.xMin = xMin;
     }
-    public void setY_min(double y_min){
-        this.y_min = y_min;
+    public void setYMin(double yMin){
+        this.yMin = yMin;
     }
-    public void setX_max(double x_max){
-        this.x_max = x_max;
+    public void setXMax(double xMax){
+        this.xMax = xMax;
     }
-    public void setY_max(double y_max){
-        this.y_max = y_max;
+    public void setYMax(double yMax){
+        this.yMax = yMax;
     }
-    public void setClass_name(String class_name){
-        this.class_name = class_name;
+    public void setClass_name(String className){
+        this.className = className;
     }
     public void setConfidence(double confidence){
         this.confidence = confidence;
     }
-    public void setTracker_id(String tracker_id){
-        this.tracker_id = tracker_id;
+    public void setTrackerId(String trackerId){
+        this.trackerId = trackerId;
     }
-    public void setFrame_id(int frame_id){
-        this.frame_id = frame_id;
+    public void setFrameId(int frameId){
+        this.frameId = frameId;
     }
-    public void setClass_id(int class_id){
-        this.class_id = class_id;
+    public void setClassId(int classId){
+        this.classId = classId;
+    }
+    public void setFrameHeight(int frameHeight){
+        this.frameHeight = frameHeight;
+    }
+    public void setFrameWidth(int frameWidth){
+        this.frameWidth = frameWidth;
     }
 
     

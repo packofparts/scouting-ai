@@ -26,9 +26,10 @@ public class AIScout {
     private static final Point BOTTOM_RIGHT = new Point(0.9, 0.89);
 
     public static void main(String[] args) {
-        ArrayList<ArrayList<Point>> detections = detect();
+        ArrayList<ArrayList<Optional<Point>>> detections = detect();
         FRCRobot[] robots = {};
-        
+        System.out.println(autoFrameIndex);
+        System.out.println(teleFrameIndex);
         //find the first frame with 6 robots detected
         //Insert 6 FRCRobot objects into robot with corresponding team numbers and positions
 
@@ -38,10 +39,10 @@ public class AIScout {
 
 
    
-    public static ArrayList<ArrayList<Point>> detect(){
+    public static ArrayList<ArrayList<Optional<Point>>> detect(){
         // Run detector, then read the output
         File file = new File("temp/output.json");
-        ArrayList<ArrayList<Point>> allDetections = new ArrayList<>();
+        ArrayList<ArrayList<Optional<Point>>> allDetections = new ArrayList<>();
     
         ArrayList<Detection> detections = new ArrayList<>();
         try {
@@ -50,16 +51,7 @@ public class AIScout {
 
             for (int i = 0; i < detectionsArray.length(); i++) {
                 JSONObject detectionObject = detectionsArray.getJSONObject(i);
-                Detection detection = new Detection();
-                detection.setClass_id(detectionObject.getInt("class_id"));
-                detection.setFrame_id(detectionObject.getInt("frame_id"));
-                detection.setClass_name(detectionObject.getString("class_name"));
-                detection.setConfidence(detectionObject.getDouble("confidence"));
-                detection.setTracker_id(detectionObject.getString("tracker_id"));
-                detection.setX_min(detectionObject.getDouble("x_min"));
-                detection.setX_max(detectionObject.getDouble("x_max"));
-                detection.setY_min(detectionObject.getDouble("y_min"));
-                detection.setY_max(detectionObject.getDouble("y_max"));
+                Detection detection = new Detection(detectionObject.getDouble("x_min"), detectionObject.getDouble("y_min"), detectionObject.getDouble("x_max"), detectionObject.getDouble("y_max"), detectionObject.getString("class_name"), detectionObject.getDouble("confidence"), detectionObject.getString("tracker_id"), detectionObject.getInt("frame_id"), detectionObject.getInt("class_id"), detectionObject.getInt("frame_width"), detectionObject.getInt("frame_height"));
                 detections.add(detection);
             }
             
@@ -69,29 +61,29 @@ public class AIScout {
 
         int prevFrame = -1;
         for (Detection det : detections) {
-            if(det.getClass_name().equals("Robot") || det.getClass_name().equals("Auto")){
-                double centerX = (det.getX_min() + det.getX_max()) / 2.0;
-                double centerY = (det.getY_min() + det.getY_max()) / 2.0;
-                centerX = centerX / 1280.0;
-                centerY = centerY / 720.0;
+            if(det.getClassName().equals("Robot") || det.getClassName().equals("Auto")){
+                double centerX = (det.getXMin() + det.getXMax()) / 2.0;
+                double centerY = (det.getYMin() + det.getYMax()) / 2.0;
+                centerX = centerX / det.getFrameWidth();
+                centerY = centerY / det.getFrameHeight();
                 
-                if(prevFrame != det.getFrame_id()){
-                    ArrayList<Point> frameDetections = new ArrayList<>();
-                    frameDetections.add(det.getClass_name().equals("Auto") ? null : new Point(centerX, centerY));
+                if(prevFrame != det.getFrameId()){
+                    ArrayList<Optional<Point>> frameDetections = new ArrayList<>();
+                    frameDetections.add(det.getClassName().equals("Auto") ? Optional.empty() : Optional.of(new Point(centerX, centerY)));
                     allDetections.add(frameDetections);
-                    prevFrame = det.getFrame_id();
+                    prevFrame = det.getFrameId();
                 } else {
-                    allDetections.get(allDetections.size() - 1).add(det.getClass_name().equals("Auto") ? null : new Point(centerX, centerY));
+                    allDetections.get(allDetections.size() - 1).add(det.getClassName().equals("Auto") ? Optional.empty() : Optional.of(new Point(centerX, centerY)));
                 }
             }
 
         }
         for(int i = 0; i < allDetections.size(); i++){
-            int nullIndex = allDetections.get(i).indexOf(null);
+            int nullIndex = allDetections.get(i).indexOf(Optional.empty());
             boolean autoDetected = false;
             while(nullIndex != -1) {
                 allDetections.get(i).remove(nullIndex);
-                nullIndex = allDetections.get(i).indexOf(null);
+                nullIndex = allDetections.get(i).indexOf(Optional.empty());
                 autoDetected = true;
             }
             if(autoDetected && autoFrameIndex == -1) {
