@@ -13,7 +13,7 @@ fi
 
 read -p "Need 2 run Detector? (y/n): " detect
 if [[ "$detect" =~ ^[Yy]$ ]]; then
-    python3 detect2.py
+    python3 detector.py
     
 fi
 
