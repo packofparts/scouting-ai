@@ -65,7 +65,7 @@ For the video downloader specifically, enter the link to the YouTube video of th
 9. Finally, run src/Visualization.java, and enter the team number to visualize its robot paths!
 
 # Credits
-1. Shoutout to @NimbleValley!
+1. Shoutout to [NimbleValley](https://github.com/NimbleValley)!
 
 2. Contributing Writer. (Aug 29, 2024). Mapping Robot Paths in Robotics Competitions with Computer Vision. Roboflow Blog: https://blog.roboflow.com/robot-path-mapping/ (NimbleValley's blog)
 
