@@ -1,4 +1,4 @@
-pytubefix
+yt-dlp
 validators
 ffmpeg-python
 dotenv
@@ -6,3 +6,10 @@ inference
 moviepy
 supervision
 roboflow
+
+# Note: The following non-Python dependencies must also be installed:
+# - Node.js (https://nodejs.org) - required for YouTube bot-detection bypass
+# - ffmpeg (https://ffmpeg.org) - required for merging video/audio streams
+#   macOS: brew install ffmpeg
+#   Windows: download from https://ffmpeg.org/download.html
+#   Linux: sudo apt install ffmpeg

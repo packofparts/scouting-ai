@@ -1,36 +1,33 @@
 """
 YouTube Downloader - Source from https://github.com/DevCTx/YouTubeDownloader. Edited by AI to export the video to specific file inside this project.
+Refactored to use yt-dlp instead of pytubefix for better bot-detection bypass.
 """
-import http
 import os
-import urllib
-
-_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-MATCHES_DIR = os.path.join(_SCRIPT_DIR, "matches")
-OUTPUT_FILENAME = "match.mp4"
-import socket
 import webbrowser
 from traceback import format_exc as traceback_format_exc
 from validators import url as valid_url
 from enum import Enum
-from pytubefix import YouTube, exceptions
 
-# Needs to install ffmpeg-python module and ffmpeg zip in a directory on os and to add a path var to bin folder
-import ffmpeg
+import yt_dlp
+
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+MATCHES_DIR = os.path.join(_SCRIPT_DIR, "matches")
+OUTPUT_FILENAME = "match.mp4"
+
 
 class YTD_Error(Enum):
-    UNKNOWN = 0,
-    INVALID_URL = 1,
-    ISNOT_YOUTUBE_URL = 2,
-    NETWORK_ERROR = 3,
+    UNKNOWN = 0
+    INVALID_URL = 1
+    ISNOT_YOUTUBE_URL = 2
+    NETWORK_ERROR = 3
     GETINFO_ERROR = 4
 
 
 class YTD_exceptions(Exception):
 
     def __init__(self, code, msg=None):
-        if code == YTD_Error.UNKNOWN :
-            print('Traceback : ', traceback_format_exc())  # Trace the last erroneous line and specify the exception
+        if code == YTD_Error.UNKNOWN:
+            print('Traceback : ', traceback_format_exc())
         elif code == YTD_Error.NETWORK_ERROR:
             print(f"Please check your internet connection! [error : {code} ]")
         else:
@@ -43,107 +40,110 @@ class YouTubeDownloader():
     BASE_YOUTUBE_URL = "https://www.youtube.com"
     DEFAULT_URL = "https://www.youtube.com/watch?v=WRyzVaf46Ts"
 
+    # Change this to your browser: 'chrome', 'firefox', 'safari', 'edge', 'brave', etc.
+    BROWSER_FOR_COOKIES = "chrome"
+
     def __init__(self):
         self.url = None
-        self.__youtube_video = None
+        self.__info = None
+        self.__formats = []
+        self.__stream_list = []
         self.__with_audio_track = True
         self.__with_video_track = True
+        self.__personalized = False
         os.makedirs(MATCHES_DIR, exist_ok=True)
 
-    def __try(self, func):
-        try:
-            return func
-        except exceptions.RegexMatchError as e :
-            raise YTD_exceptions(YTD_Error.ISNOT_YOUTUBE_VIDEO, "Please enter a valid Video YouTube URL!") from e
-        except (urllib.error.URLError, http.client.RemoteDisconnected) as e:
-            raise YTD_exceptions(YTD_Error.NETWORK_ERROR) from e
-        except socket.gaierror as e:
-            raise YTD_exceptions(YTD_Error.GETINFO_ERROR) from e
-        except :
-            raise YTD_exceptions(YTD_Error.UNKNOWN, "Non identified error")
-
     def get_url_from_user(self, default=None):
-        if default == None :
-            self.url = self.check_youtube_url( input("Video to download : ") )
+        if default is None:
+            self.url = self.check_youtube_url(input("Video to download : "))
         else:
             self.url = self.check_youtube_url(default)
         return self.url
 
     def check_youtube_url(self, url):
-        # Checks the url format
         if not valid_url(url):
             raise YTD_exceptions(YTD_Error.INVALID_URL, "Please enter a valid URL!")
         elif not url.lower().startswith(YouTubeDownloader.BASE_YOUTUBE_URL):
             raise YTD_exceptions(YTD_Error.ISNOT_YOUTUBE_URL, "Please enter a valid Youtube URL!")
         return url
 
-    def get_title(self):
-        title = "<Title Unknown>"
-        if self.__youtube_video is not None:
-            try:
-                title = self.__youtube_video.title
-            except (urllib.error.URLError, http.client.RemoteDisconnected) as e:
+    def get_youtube_information(self, url):
+        """Extract video metadata using yt-dlp without downloading."""
+        try:
+            ydl_opts = {
+                'quiet': True,
+                'no_warnings': True,
+                'skip_download': True,
+                'cookiesfrombrowser': (self.BROWSER_FOR_COOKIES,),
+                'js_runtimes': {'node': {}},
+                'remote_components': {'ejs': 'github'},
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                self.__info = ydl.extract_info(url, download=False)
+                self.__formats = self.__info.get('formats', [])
+        except yt_dlp.utils.DownloadError as e:
+            if 'urlopen' in str(e).lower() or 'network' in str(e).lower():
                 raise YTD_exceptions(YTD_Error.NETWORK_ERROR) from e
-            except socket.gaierror as e:
-                raise YTD_exceptions(YTD_Error.GETINFO_ERROR) from e
-            except:
-                raise YTD_exceptions(YTD_Error.UNKNOWN, "Non identified error")
-        return title
+            raise YTD_exceptions(YTD_Error.GETINFO_ERROR, str(e)) from e
+        except Exception as e:
+            raise YTD_exceptions(YTD_Error.UNKNOWN, str(e)) from e
+        return self.__info
+
+    def get_title(self):
+        if self.__info:
+            return self.__info.get('title', '<Title Unknown>')
+        return '<Title Unknown>'
 
     def get_views(self):
-        views = "<Number unknown>"
-        if self.__youtube_video is not None:
-            try:
-                views = self.__youtube_video.views
-            except (urllib.error.URLError, http.client.RemoteDisconnected) as e:
-                raise YTD_exceptions(YTD_Error.NETWORK_ERROR) from e
-            except socket.gaierror as e:
-                raise YTD_exceptions(YTD_Error.GETINFO_ERROR) from e
-            except:
-                raise YTD_exceptions(YTD_Error.UNKNOWN, "Non identified error")
-        return views
+        if self.__info:
+            return self.__info.get('view_count', '<Number unknown>')
+        return '<Number unknown>'
 
-    def get_youtube_information(self, url):
-        # Try to catch the information from YouTube and print the Title and number of views if available
-        self.__youtube_video = self.__try(YouTube(self.url, on_progress_callback= self.__on_progress))
-        return self.__youtube_video
+    def _get_compatible_formats(self):
+        """Return formats compatible with mp4 output (ffmpeg can convert most formats)."""
+        return [f for f in self.__formats if f.get('ext') in ('mp4', 'm4a', 'webm', 'mp3', 'opus')]
 
     def displays_all_kind_of_available_stream(self):
         print("\nWhat kind of stream would you like to download ?")
-        print("Please wait ...",end='')
-        # Get the list of all available streams on YouTube for this url
-        streams = self.__try(self.__youtube_video.streams.filter(file_extension='mp4'))
-        print("\r",end='')
+        print("Please wait ...", end='')
 
-        # Displays the resolutions available to download and ask user to select a choice
+        compat_formats = self._get_compatible_formats()
+
+        audio_available = any(f.get('acodec', 'none') != 'none' and f.get('vcodec', 'none') == 'none' for f in compat_formats)
+        video_available = any(f.get('vcodec', 'none') != 'none' and f.get('acodec', 'none') == 'none' for f in compat_formats)
+        combined_available = any(
+            f.get('vcodec', 'none') != 'none' and f.get('acodec', 'none') != 'none' for f in compat_formats
+        )
+
+        print("\r", end='')
+
         self.__stream_list = []
-        audio_available = False
-        video_available = False
-        for stream in streams:
-            if stream.includes_audio_track:
-                audio_available = True
-            if stream.includes_video_track:
-                video_available = True
-            self.__stream_list.append((stream.includes_audio_track,
-                                       stream.includes_video_track,
-                                       stream.mime_type))
-        self.__stream_list = list(set(self.__stream_list))
-        if audio_available and video_available :
-            self.__stream_list.append((audio_available, video_available, "personalized"))
-        for idx, elem in enumerate(self.__stream_list):
-            msg = f'{elem[2] if elem[2]=="personalized" else "standard" } audio-video stream' if elem[0] and elem[1] \
-              else 'video stream only' if elem[0] == False and elem[1] == True \
-              else 'audio stream only' if elem[0] == True and elem[1] == False \
-              else elem[2]
-            print(f"{idx + 1} - {msg}")
+        idx = 0
+        if combined_available:
+            self.__stream_list.append(('audio+video', True, True, False))
+            idx += 1
+            print(f"{idx} - standard audio-video stream")
+        if video_available:
+            self.__stream_list.append(('video_only', False, True, False))
+            idx += 1
+            print(f"{idx} - video stream only")
+        if audio_available:
+            self.__stream_list.append(('audio_only', True, False, False))
+            idx += 1
+            print(f"{idx} - audio stream only")
+        if audio_available and video_available:
+            self.__stream_list.append(('personalized', True, True, True))
+            idx += 1
+            print(f"{idx} - personalized audio-video stream")
 
     def set_audio_video_choice(self, choice):
-        self.__with_audio_track = self.__stream_list[choice - 1][0]
-        self.__with_video_track = self.__stream_list[choice - 1][1]
-        self.__personalized = True if self.__stream_list[choice - 1][2] == "personalized" else False
+        entry = self.__stream_list[choice - 1]
+        self.__with_audio_track = entry[1]
+        self.__with_video_track = entry[2]
+        self.__personalized = entry[3]
         print(f"audio = {self.__with_audio_track}", end=' ')
         print(f"/ video = {self.__with_video_track}", end=' ')
-        print(f"/ personalized" if self.__personalized else "/ standard")
+        print("/ personalized" if self.__personalized else "/ standard")
         return self.__personalized
 
     def set_audio_only(self):
@@ -155,54 +155,52 @@ class YouTubeDownloader():
         self.__with_video_track = True
 
     def displays_audio_video_stream_list(self):
-        """
-        Displays the list of available streams on YouTube for this url
-        depending on __with_audio_track and __with_video_track
-
-        if __with_audio_track and __with_video_track, get the progressive streams = by audio-video combined pairs
-        if __with_audio_track only get the adaptive audio streams = audio streams only order by audio rate
-        if __with_video_track only get the adaptive video streams = video streams only order by resolution
-        :return: None
-        """
+        """Display available streams filtered by current audio/video selection."""
         print("Please wait ...", end='')
-        if self.__with_audio_track and self.__with_video_track :
-            streams = self.__try(
-                self.__youtube_video.streams.filter(progressive=True, file_extension='mp4')
-                .order_by("resolution")
-                .desc()
-            )
-        elif self.__with_audio_track and not self.__with_video_track:
-            streams = self.__try(
-                self.__youtube_video.streams.filter(adaptive=True, file_extension='mp4', type="audio")
-                .order_by("abr")
-                .desc()
-            )
-        elif not self.__with_audio_track and self.__with_video_track :
-            streams = self.__try(
-                self.__youtube_video.streams.filter( adaptive=True, file_extension='mp4', type="video")
-                .order_by("resolution")
-                .desc()
-            )
-        print("\r",end='')
 
-        # Displays the resolutions available to download and ask user to select a choice
+        compat_formats = self._get_compatible_formats()
+
+        filtered = []
+        if self.__with_audio_track and self.__with_video_track and not self.__personalized:
+            # Progressive (muxed) streams
+            filtered = [
+                f for f in compat_formats
+                if f.get('vcodec', 'none') != 'none' and f.get('acodec', 'none') != 'none'
+            ]
+            filtered.sort(key=lambda f: f.get('height') or 0, reverse=True)
+        elif self.__with_audio_track and not self.__with_video_track:
+            # Audio-only adaptive (includes m4a)
+            filtered = [
+                f for f in compat_formats
+                if f.get('acodec', 'none') != 'none' and f.get('vcodec', 'none') == 'none'
+            ]
+            filtered.sort(key=lambda f: f.get('abr') or 0, reverse=True)
+        elif self.__with_video_track and not self.__with_audio_track:
+            # Video-only adaptive
+            filtered = [
+                f for f in compat_formats
+                if f.get('vcodec', 'none') != 'none' and f.get('acodec', 'none') == 'none'
+            ]
+            filtered.sort(key=lambda f: f.get('height') or 0, reverse=True)
+
+        print("\r", end='')
+
         self.__stream_list = []
-        for stream in streams:
+        for f in filtered:
+            format_id = f.get('format_id', '?')
             if self.__with_audio_track and not self.__with_video_track:
-                self.__stream_list.append((stream.__dict__['abr'],
-                                           stream.__dict__['mime_type'],
-                                           stream.__dict__['itag']))
+                label = f"{f.get('abr', '?')}kbps"
             else:
-                self.__stream_list.append((stream.__dict__['resolution'],
-                                           stream.__dict__['mime_type'],
-                                           stream.__dict__['itag']))
+                label = f"{f.get('height', '?')}p"
+            codec = f.get('vcodec', f.get('acodec', '?'))
+            self.__stream_list.append((label, f"mp4 ({codec})", format_id))
 
         for idx, elem in enumerate(self.__stream_list):
-            print(f"{idx + 1} - {elem[0]} {elem[1]} (itag:{elem[2]})")
+            print(f"{idx + 1} - {elem[0]} {elem[1]} (format_id:{elem[2]})")
 
     def asks_user_choice(self):
         choice = None
-        while choice == None:
+        while choice is None:
             try:
                 choice = int(input("Enter your choice : "))
             except ValueError:
@@ -213,38 +211,82 @@ class YouTubeDownloader():
                 elif 1 <= choice <= len(self.__stream_list):
                     break
                 else:
-                    print("Please select a available option!")
+                    print("Please select an available option!")
             choice = None
         return choice
 
-    def __on_progress(self, stream, chunk, bytes_remaining):
-        percentage_done = (stream.filesize - bytes_remaining) * 100 / stream.filesize
-        print(f"\rDownloading {self.resolution} {self.mime_type} (itag:{self.itag})...",
-              int(percentage_done), "%", end='' if percentage_done != 100 else ' done !\n')
-
     def download_selected_stream(self, choice):
-        # Download the selected resolution via the itag ident
-        self.resolution = self.__stream_list[choice - 1][0]
-        self.mime_type = self.__stream_list[choice - 1][1]
-        self.itag = int(self.__stream_list[choice - 1][2])
-        print("\nPlease wait ... ", end='')
-        stream = self.__try(self.__youtube_video.streams.get_by_itag(self.itag))
-        output_path = (
-            'audio' if not self.__with_video_track and self.__with_audio_track and self.__personalized
-            else 'video' if self.__with_video_track and not self.__with_audio_track and self.__personalized
-            else MATCHES_DIR
-        )
-        self.__try(stream.download(output_path))
-        print("\r", end='')
-        return stream
+        """Download the selected format using yt-dlp."""
+        format_id = self.__stream_list[choice - 1][2]
+        label = self.__stream_list[choice - 1][0]
+
+        if not self.__with_video_track and self.__with_audio_track and self.__personalized:
+            output_dir = 'audio'
+        elif self.__with_video_track and not self.__with_audio_track and self.__personalized:
+            output_dir = 'video'
+        else:
+            output_dir = MATCHES_DIR
+
+        os.makedirs(output_dir, exist_ok=True)
+
+        ydl_opts = {
+            'format': format_id,
+            'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
+            'quiet': False,
+            'no_warnings': True,
+            'cookiesfrombrowser': (self.BROWSER_FOR_COOKIES,),
+            'js_runtimes': {'node': {}},
+            'remote_components': {'ejs': 'github'},
+        }
+
+        print(f"\nDownloading {label} (format_id:{format_id})...")
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(self.url, download=True)
+                filename = ydl.prepare_filename(info)
+        except Exception as e:
+            raise YTD_exceptions(YTD_Error.UNKNOWN, str(e)) from e
+
+        print("Download complete!")
+        return filename
+
+    def download_best_auto(self):
+        """
+        Convenience method: let yt-dlp pick the best audio+video and merge
+        them automatically (requires ffmpeg on PATH).
+        """
+        output_path = os.path.join(MATCHES_DIR, OUTPUT_FILENAME)
+        if os.path.exists(output_path):
+            os.remove(output_path)
+
+        ydl_opts = {
+            'format': 'bestvideo+bestaudio/best',
+            'outtmpl': output_path,
+            'merge_output_format': 'mp4',
+            'quiet': False,
+            'no_warnings': True,
+            'cookiesfrombrowser': (self.BROWSER_FOR_COOKIES,),
+            'js_runtimes': {'node': {}},
+            'remote_components': {'ejs': 'github'},
+        }
+
+        print("\nDownloading best quality...")
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([self.url])
+        except Exception as e:
+            raise YTD_exceptions(YTD_Error.UNKNOWN, str(e)) from e
+
+        print("Download complete!")
+        return output_path
 
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     downloader = YouTubeDownloader()
 
-    url_user = downloader.get_url_from_user()       # (YouTubeDownloader.DEFAULT_URL) to test
+    url_user = downloader.get_url_from_user()  # (YouTubeDownloader.DEFAULT_URL) to test
     downloader.get_youtube_information(url_user)
-    print("Title :", downloader.get_title(), "(", downloader.get_views(),"views )")
+    print("Title :", downloader.get_title(), "(", downloader.get_views(), "views )")
 
     downloader.displays_all_kind_of_available_stream()
     choice = downloader.asks_user_choice()
@@ -253,44 +295,47 @@ if __name__ == '__main__' :
         print("\nSelect the video resolution ...")
         downloader.displays_audio_video_stream_list()
         choice = downloader.asks_user_choice()
-        stream = downloader.download_selected_stream(choice)
+        downloaded_file = downloader.download_selected_stream(choice)
         output_path = os.path.join(MATCHES_DIR, OUTPUT_FILENAME)
         if os.path.exists(output_path):
             os.remove(output_path)
-        downloaded_path = os.path.join(MATCHES_DIR, stream.default_filename)
-        os.rename(downloaded_path, output_path)
+        os.rename(downloaded_file, output_path)
         file_path = output_path
-    else:   # Personalized choice
+    else:  # Personalized choice
         print("\nSelect a video resolution ...")
         downloader.set_video_only()
         downloader.displays_audio_video_stream_list()
         choice = downloader.asks_user_choice()
-        stream = downloader.download_selected_stream(choice)
+        video_file = downloader.download_selected_stream(choice)
 
         print("\n.. then an audio rate ...")
         downloader.set_audio_only()
         downloader.displays_audio_video_stream_list()
         choice = downloader.asks_user_choice()
-        audio_stream = downloader.download_selected_stream(choice)
+        audio_file = downloader.download_selected_stream(choice)
 
-        print("\n... and the magic appears ...") # and build the new video
-        audio_filename = os.path.join("audio", audio_stream.default_filename)
-        video_filename = os.path.join("video", stream.default_filename)
-        output_filename = os.path.join(MATCHES_DIR, OUTPUT_FILENAME)
-        if os.path.exists(output_filename):
-            os.remove(output_filename)
-        # vcodec et acodec = "copy" to directlystream associated the downloaded video and audio streams
-        ffmpeg.output( ffmpeg.input(audio_filename),
-                       ffmpeg.input(video_filename),
-                       output_filename, vcodec='copy', acodec='copy', loglevel='quiet').run(overwrite_output=True)
+        print("\n... and the magic appears ...")
+        import ffmpeg as ffmpeg_lib
 
-        # delete the temporary files and folders
-        os.remove(audio_filename)
-        os.remove(video_filename)
-        os.rmdir('audio')
-        os.rmdir('video')
+        output_path = os.path.join(MATCHES_DIR, OUTPUT_FILENAME)
+        if os.path.exists(output_path):
+            os.remove(output_path)
 
-        file_path = output_filename
+        ffmpeg_lib.output(
+            ffmpeg_lib.input(audio_file),
+            ffmpeg_lib.input(video_file),
+            output_path, vcodec='copy', acodec='copy', loglevel='quiet'
+        ).run(overwrite_output=True)
+
+        # Clean up temporary files and folders
+        os.remove(audio_file)
+        os.remove(video_file)
+        if not os.listdir('audio'):
+            os.rmdir('audio')
+        if not os.listdir('video'):
+            os.rmdir('video')
+
+        file_path = output_path
 
     print("\nHere it is : ", file_path)
     webbrowser.open(file_path)

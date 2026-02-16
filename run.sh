@@ -7,13 +7,13 @@ set -o pipefail
 
 read -p "Need 2 run Video Downloader? (y/n): " download
 if [[ "$download" =~ ^[Yy]$ ]]; then
-    python3 YouTubeDownloader.py
+    python3.12 YouTubeDownloader.py
     
 fi
 
 read -p "Need 2 run Detector? (y/n): " detect
 if [[ "$detect" =~ ^[Yy]$ ]]; then
-    python3 detect2.py
+    python3.12 detect2.py
     
 fi
 

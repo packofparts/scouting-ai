@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Scanner;
 
+
 import java.util.Optional;
 
 public class AIScout {
