@@ -1,5 +1,5 @@
 # scouting-ai
-**Thank you, @NimbleValley, [NimbleValley's blog](https://blog.roboflow.com/robot-path-mapping/), and [NimbleValley's auto-scout program](https://github.com/NimbleValley/auto-scout), for inspiration and making this project possible!!!**
+**Thank you, [NimbleValley](https://github.com/NimbleValley), [NimbleValley's blog](https://blog.roboflow.com/robot-path-mapping/), and [NimbleValley's auto-scout program](https://github.com/NimbleValley/auto-scout), for inspiration and making this project possible!!!**
 # Welcome to The P.A.C.K.!
 
 The P.A.C.K (Predictive, Analytical, and Competitive Knowledge-base) is designed efficiently gather, analyze, and visualize the locations of FRC Robots in the FIRST Robotics Competitions. 
