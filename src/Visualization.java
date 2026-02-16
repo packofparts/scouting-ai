@@ -39,7 +39,14 @@ public class Visualization extends JPanel {
 
         System.out.println("Loading data for team " + teamNumber + "...");
 
-        BufferedReader br = new BufferedReader(new FileReader("data/" + teamNumber + ".csv"));
+        
+        BufferedReader br;
+        try{
+            br = new BufferedReader(new FileReader("data/" + teamNumber + ".csv"));
+        }   catch (IOException e) {
+            scanner.close();
+            throw new RuntimeException("Error loading data for team " + teamNumber + ". Likely causes: incorrect team number format or file not found.");
+        }
         String line;
         while ((line = br.readLine()) != null) {
             String[] values = line.split(",");
@@ -47,13 +54,14 @@ public class Visualization extends JPanel {
             if (values.length == 3) {
                 try {
 
-                    boolean state = Boolean.parseBoolean(values[0]);
+                    boolean isAuto = Boolean.parseBoolean(values[0]);
                     double x = Double.parseDouble(values[1]);
                     double y = Double.parseDouble(values[2]);
                     points.add(Optional.of(new Point(x, y)));
-                    states.add(Optional.of(state));
+                    states.add(Optional.of(isAuto));
 
                 } catch (Exception e) {
+                    System.out.println("Error parsing line: \"" + line + "\". Skipping this line.");
                     points.add(Optional.empty());
                     states.add(Optional.empty());
                 }
@@ -121,19 +129,19 @@ public class Visualization extends JPanel {
         }
 
         Optional<Point> prevPoint = Optional.empty();
-        Optional<Boolean> prevState = Optional.empty();
+        Optional<Boolean> prevIsAuto = Optional.empty();
 
         for (int i = 0; i < points.size() && i < states.size(); i++) {
             Optional<Point> point = points.get(i);
-            Optional<Boolean> state = states.get(i);
+            Optional<Boolean> isAuto = states.get(i);
 
-            if (point.isPresent() && state.isPresent() && prevPoint.isPresent() && prevState.isPresent()) {
-                if (state.get() && prevState.get()) {
+            if (point.isPresent() && isAuto.isPresent() && prevPoint.isPresent() && prevIsAuto.isPresent()) {
+                if (isAuto.get() && prevIsAuto.get()) {
                     g.setColor(Color.PINK);
                     if (auto) {
                         g.drawLine((int) (prevPoint.get().getX() * WIDTH), (int) (prevPoint.get().getY() * HEIGHT), (int) (point.get().getX() * WIDTH), (int) (point.get().getY() * HEIGHT));
                     }
-                } else if (!state.get() && !prevState.get()) {
+                } else if (!isAuto.get() && !prevIsAuto.get()) {
                     g.setColor(Color.CYAN);
                     if (tele) {
                         g.drawLine((int) (prevPoint.get().getX() * WIDTH), (int) (prevPoint.get().getY() * HEIGHT), (int) (point.get().getX() * WIDTH), (int) (point.get().getY() * HEIGHT));
@@ -144,7 +152,7 @@ public class Visualization extends JPanel {
                 }
             }
             prevPoint = point;
-            prevState = state;
+            prevIsAuto = isAuto;
         }
     }
 
