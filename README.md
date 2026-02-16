@@ -1,4 +1,5 @@
 # scouting-ai
+**Thank you, @NimbleValley, [NimbleValley's blog](https://blog.roboflow.com/robot-path-mapping/), and [NimbleValley's auto-scout program](https://github.com/NimbleValley/auto-scout), for inspiration and making this project possible!!!**
 # Welcome to The P.A.C.K.!
 
 The P.A.C.K (Predictive, Analytical, and Competitive Knowledge-base) is designed efficiently gather, analyze, and visualize the locations of FRC Robots in the FIRST Robotics Competitions. 
@@ -61,3 +62,24 @@ depending on the OS. Follow the instructions and run the video downloader, detec
 For the video downloader specifically, enter the link to the YouTube video of the match (preferrably WIDE) to be analyzed. 
 
 9. Finally, run src/Visualization.java, and enter the team number to visualize its robot paths!
+
+# Credits
+1. Shoutout to @NimbleValley!
+
+2. Contributing Writer. (Aug 29, 2024). Mapping Robot Paths in Robotics Competitions with Computer Vision. Roboflow Blog: https://blog.roboflow.com/robot-path-mapping/ (NimbleValley's blog)
+
+3. https://github.com/NimbleValley/auto-scout (NimbleValley's auto-scout repo)
+
+4. https://github.com/KevinStern/software-and-algorithms/blob/master/src/main/java/blogspot/software_and_algorithms/stern_library/optimization/HungarianAlgorithm.java (HungarianAlgorithm.java)
+
+5. https://github.com/DevCTx/YouTubeDownloader (YouTubeVideoDownloader.py, modified)
+
+6. https://github.com/stleary/JSON-java. (All files in /json folder)
+
+7. All match videos and images used in this repository are sourced from [PNW District 2025 Sammamish Event, Lower Bracket, Round 2, Match 6 of the FIRST Robotics Competition](https://www.youtube.com/watch?v=XZDd_Yerab0). 
+
+8. The field image used for visualization (field.png) is sourced from [the FRC game manual](https://firstfrc.blob.core.windows.net/frc2025/Manual/2025GameManual.pdf). 
+
+9. *Some AI assistance is used in this project.*
+
+# Good luck with scouting!
