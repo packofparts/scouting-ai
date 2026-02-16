@@ -5,7 +5,8 @@
 The P.A.C.K (Predictive, Analytical, and Competitive Knowledge-base) is designed efficiently gather, analyze, and visualize the locations of FRC Robots in the FIRST Robotics Competitions. 
 
 Take PNW District 2025 Sammamish Event, Lower Bracket, Round 2, Match 6, For example:
-<video src="samples/samplematch.mp4" width="500" controls></video>
+
+[![Watch the video](https://img.youtube.com/vi/XZDd_Yerab0/0.jpg)](https://www.youtube.com/watch?v=XZDd_Yerab0)
 
 Here is The P.A.C.K's detected path of team 1294. Pink lines denote robot movement during the autonomous period, while cyan lines denote the tele-operated period:
 <image src="samples/path.png" width="500" controls></image>
