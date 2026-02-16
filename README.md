@@ -83,4 +83,4 @@ For the video downloader specifically, enter the link to the YouTube video of th
 
 9. *Some AI assistance is used in this project.*
 
-# Good luck with scouting!
+# Good Luck With Scouting!
