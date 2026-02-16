@@ -5,6 +5,7 @@ cd "$(dirname "$0")"
 
 set -o pipefail
 
+echo "Welcome to The P.A.C.K. (Predictive, Analytical, and Competitive Knowledge-base)!"
 read -p "Need 2 run Video Downloader? (y/n): " download
 if [[ "$download" =~ ^[Yy]$ ]]; then
     python3 YouTubeDownloader.py

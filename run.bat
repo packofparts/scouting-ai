@@ -1,8 +1,11 @@
 @echo off
-setlocal enabledelayedexpansion
+
 
 pushd "%~dp0"
 
+echo Welcome to The P.A.C.K. (Predictive, Analytical, and Competitive Knowledge-base)!
+
+setlocal enabledelayedexpansion
 
 echo Need 2 run Video Downloader? (y/n)
 SET /p download=

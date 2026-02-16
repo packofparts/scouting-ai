@@ -34,7 +34,7 @@ public class Visualization extends JPanel {
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Welcome to AlphaScout Visualization! Which team to visualize?");
+        System.out.println("Welcome to The P.A.C.K. (Predictive, Analytical, and Competitive Knowledge-base) Visualization! Which team to visualize?");
         String teamNumber = scanner.nextLine();
 
         System.out.println("Loading data for team " + teamNumber + "...");
@@ -99,8 +99,8 @@ public class Visualization extends JPanel {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize((int) WIDTH, (int) HEIGHT);
         frame.setLocation(0, 0);
-        frame.setName("AlphaScout - Team " + teamNumber);
-        frame.setTitle("AlphaScout - Team " + teamNumber);
+        frame.setName("The P.A.C.K. (Predictive, Analytical, and Competitive Knowledge-base) Visualization - Team " + teamNumber);
+        frame.setTitle("The P.A.C.K. (Predictive, Analytical, and Competitive Knowledge-base) Visualization - Team " + teamNumber);
         frame.setIconImage(ImageIO.read(new File("pop.png")));
         frame.add(app);
         frame.setVisible(true);
@@ -115,7 +115,7 @@ public class Visualization extends JPanel {
         super.paint(g);
 
         try {
-            drawImage(0, 0, WIDTH, HEIGHT, 0, ImageIO.read(new File("2025field.png")), g);
+            drawImage(0, 0, WIDTH, HEIGHT, 0, ImageIO.read(new File("field.png")), g);
         } catch (IOException e) {
             e.printStackTrace();
         }

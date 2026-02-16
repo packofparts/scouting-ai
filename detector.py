@@ -27,7 +27,7 @@ import moviepy as mp
 enablePrint()
 
 
-model_id = "1294-ai-scouting/10"
+model_id = "1294-ai-scouting/10" # Change this to your model ID from Roboflow
 input_video_path = "matches/match.mp4"
 output_path = "temp/output.json"
 
