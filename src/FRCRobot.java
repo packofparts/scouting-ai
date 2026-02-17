@@ -16,9 +16,9 @@ public class FRCRobot {
         this.positionHistory = new ArrayList<>();
     }
     
-    public void updatePosition(Point pos, boolean gameState){//gameState is true for auto, false for teleop
+    public void updatePosition(Point pos, boolean isAuto){//isAuto is true for auto, false for teleop
         this.pos = pos;
-        positionHistory.add(gameState + "," + pos.getX() + "," + pos.getY());
+        positionHistory.add(isAuto + "," + pos.getX() + "," + pos.getY());
     }
     
     public void writeData(){ 

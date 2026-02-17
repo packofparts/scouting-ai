@@ -1,5 +1,5 @@
 """
-YouTube Downloader - Source from https://github.com/DevCTx/YouTubeDownloader. Edited by AI to export the video to specific file inside this project.
+YouTube Downloader - Source from https://github.com/DevCTx/YouTubeDownloader. Edited by Anthropic's Claude Opus 4.6 to export the video to specific file inside this project.
 Refactored to use yt-dlp instead of pytubefix for better bot-detection bypass.
 """
 import os
@@ -16,10 +16,10 @@ OUTPUT_FILENAME = "match.mp4"
 
 
 class YTD_Error(Enum):
-    UNKNOWN = 0
-    INVALID_URL = 1
-    ISNOT_YOUTUBE_URL = 2
-    NETWORK_ERROR = 3
+    UNKNOWN = 0,
+    INVALID_URL = 1,
+    ISNOT_YOUTUBE_URL = 2,
+    NETWORK_ERROR = 3,
     GETINFO_ERROR = 4
 
 
@@ -101,7 +101,11 @@ class YouTubeDownloader():
 
     def _get_compatible_formats(self):
         """Return formats compatible with mp4 output (ffmpeg can convert most formats)."""
-        return [f for f in self.__formats if f.get('ext') in ('mp4', 'm4a', 'webm', 'mp3', 'opus')]
+        compatible_formats = []
+        for f in self.__formats:
+            if f.get('ext') in ('mp4', 'm4a', 'webm', 'mp3', 'opus'):
+                compatible_formats.append(f)
+        return compatible_formats
 
     def displays_all_kind_of_available_stream(self):
         print("\nWhat kind of stream would you like to download ?")
@@ -109,34 +113,54 @@ class YouTubeDownloader():
 
         compat_formats = self._get_compatible_formats()
 
-        audio_available = any(f.get('acodec', 'none') != 'none' and f.get('vcodec', 'none') == 'none' for f in compat_formats)
-        video_available = any(f.get('vcodec', 'none') != 'none' and f.get('acodec', 'none') == 'none' for f in compat_formats)
-        combined_available = any(
-            f.get('vcodec', 'none') != 'none' and f.get('acodec', 'none') != 'none' for f in compat_formats
-        )
+        # Check what types of streams are available
+        audio_available = False
+        video_available = False
+        combined_available = False
+        
+        for f in compat_formats:
+            has_audio = f.get('acodec', 'none') != 'none'
+            has_video = f.get('vcodec', 'none') != 'none'
+            
+            if has_audio and not has_video:
+                audio_available = True
+            elif has_video and not has_audio:
+                video_available = True
+            elif has_audio and has_video:
+                combined_available = True
 
         print("\r", end='')
 
+        # Stream list structure: (label, has_audio, has_video, is_personalized)
+        # This makes the code more readable than using magic indexes
         self.__stream_list = []
         idx = 0
         if combined_available:
+            # Standard combined audio+video stream
             self.__stream_list.append(('audio+video', True, True, False))
             idx += 1
             print(f"{idx} - standard audio-video stream")
         if video_available:
+            # Video-only stream
             self.__stream_list.append(('video_only', False, True, False))
             idx += 1
             print(f"{idx} - video stream only")
         if audio_available:
+            # Audio-only stream
             self.__stream_list.append(('audio_only', True, False, False))
             idx += 1
             print(f"{idx} - audio stream only")
         if audio_available and video_available:
+            # Personalized stream (separate audio+video that needs merging)
             self.__stream_list.append(('personalized', True, True, True))
             idx += 1
             print(f"{idx} - personalized audio-video stream")
 
     def set_audio_video_choice(self, choice):
+        # Input sanitization and bounds checking
+        if choice < 1 or choice > len(self.__stream_list):
+            raise ValueError(f"Choice {choice} is out of range. Valid range: 1-{len(self.__stream_list)}")
+        
         entry = self.__stream_list[choice - 1]
         self.__with_audio_track = entry[1]
         self.__with_video_track = entry[2]
@@ -163,24 +187,24 @@ class YouTubeDownloader():
         filtered = []
         if self.__with_audio_track and self.__with_video_track and not self.__personalized:
             # Progressive (muxed) streams
-            filtered = [
-                f for f in compat_formats
-                if f.get('vcodec', 'none') != 'none' and f.get('acodec', 'none') != 'none'
-            ]
+            for f in compat_formats:
+                if (f.get('vcodec', 'none') != 'none' and 
+                    f.get('acodec', 'none') != 'none'):
+                    filtered.append(f)
             filtered.sort(key=lambda f: f.get('height') or 0, reverse=True)
         elif self.__with_audio_track and not self.__with_video_track:
             # Audio-only adaptive (includes m4a)
-            filtered = [
-                f for f in compat_formats
-                if f.get('acodec', 'none') != 'none' and f.get('vcodec', 'none') == 'none'
-            ]
+            for f in compat_formats:
+                if (f.get('acodec', 'none') != 'none' and 
+                    f.get('vcodec', 'none') == 'none'):
+                    filtered.append(f)
             filtered.sort(key=lambda f: f.get('abr') or 0, reverse=True)
         elif self.__with_video_track and not self.__with_audio_track:
             # Video-only adaptive
-            filtered = [
-                f for f in compat_formats
-                if f.get('vcodec', 'none') != 'none' and f.get('acodec', 'none') == 'none'
-            ]
+            for f in compat_formats:
+                if (f.get('vcodec', 'none') != 'none' and 
+                    f.get('acodec', 'none') == 'none'):
+                    filtered.append(f)
             filtered.sort(key=lambda f: f.get('height') or 0, reverse=True)
 
         print("\r", end='')
@@ -217,8 +241,13 @@ class YouTubeDownloader():
 
     def download_selected_stream(self, choice):
         """Download the selected format using yt-dlp."""
-        format_id = self.__stream_list[choice - 1][2]
-        label = self.__stream_list[choice - 1][0]
+        # Input sanitization and bounds checking
+        if choice < 1 or choice > len(self.__stream_list):
+            raise ValueError(f"Choice {choice} is out of range. Valid range: 1-{len(self.__stream_list)}")
+        
+        entry = self.__stream_list[choice - 1]
+        format_id = entry[2]
+        label = entry[0]
 
         if not self.__with_video_track and self.__with_audio_track and self.__personalized:
             output_dir = 'audio'

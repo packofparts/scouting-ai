@@ -7,9 +7,17 @@ moviepy
 supervision
 roboflow
 
+
+
 # Note: The following non-Python dependencies must also be installed:
 # - Node.js (https://nodejs.org) - required for YouTube bot-detection bypass
+#   Installation: https://nodejs.org/en/download/
+#   macOS: brew install node
+#   Windows: download from https://nodejs.org/download.html
+#   Linux: sudo apt install nodejs npm  # Debian/Ubuntu
+#          sudo yum install nodejs npm  # RHEL/CentOS/Fedora
 # - ffmpeg (https://ffmpeg.org) - required for merging video/audio streams
 #   macOS: brew install ffmpeg
 #   Windows: download from https://ffmpeg.org/download.html
-#   Linux: sudo apt install ffmpeg
+#   Linux: sudo apt install ffmpeg  # Debian/Ubuntu
+#          sudo yum install ffmpeg  # RHEL/CentOS/Fedora
