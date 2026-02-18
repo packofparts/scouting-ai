@@ -2,9 +2,11 @@
 YouTube Downloader - Source from https://github.com/DevCTx/YouTubeDownloader. Edited by Anthropic's Claude Opus 4.6 to export the video to specific file inside this project.
 Refactored to use yt-dlp instead of pytubefix for better bot-detection bypass.
 """
+import argparse
 import os
 import webbrowser
 from traceback import format_exc as traceback_format_exc
+from typing import NamedTuple, Optional
 from validators import url as valid_url
 from enum import Enum
 
@@ -35,22 +37,44 @@ class YTD_exceptions(Exception):
         exit(1)
 
 
+class VideoInfo:
+    """Wraps the raw yt-dlp info dict for better code completion."""
+
+    def __init__(self, info_dict: dict):
+        self._raw = info_dict
+        self.title: str = info_dict.get('title', '<Title Unknown>')
+        self.view_count = info_dict.get('view_count', '<Number unknown>')
+        self.formats: list = info_dict.get('formats', [])
+
+
+class StreamTypeOption(NamedTuple):
+    """Represents a category of stream (combined, video-only, audio-only, personalized)."""
+    label: str
+    has_audio: bool
+    has_video: bool
+    is_personalized: bool
+
+
+class StreamFormatOption(NamedTuple):
+    """Represents a specific stream format with quality details."""
+    label: str
+    codec_info: str
+    format_id: str
+
+
 class YouTubeDownloader():
 
     BASE_YOUTUBE_URL = "https://www.youtube.com"
-    DEFAULT_URL = "https://www.youtube.com/watch?v=WRyzVaf46Ts"
+    DEFAULT_BROWSER = "chrome"
 
-    # Change this to your browser: 'chrome', 'firefox', 'safari', 'edge', 'brave', etc.
-    BROWSER_FOR_COOKIES = "chrome"
-
-    def __init__(self):
+    def __init__(self, browser: str = DEFAULT_BROWSER):
         self.url = None
-        self.__info = None
-        self.__formats = []
+        self.__info: Optional[VideoInfo] = None
         self.__stream_list = []
         self.__with_audio_track = True
         self.__with_video_track = True
         self.__personalized = False
+        self.browser = browser
         os.makedirs(MATCHES_DIR, exist_ok=True)
 
     def get_url_from_user(self, default=None):
@@ -74,13 +98,13 @@ class YouTubeDownloader():
                 'quiet': True,
                 'no_warnings': True,
                 'skip_download': True,
-                'cookiesfrombrowser': (self.BROWSER_FOR_COOKIES,),
+                'cookiesfrombrowser': (self.browser,),
                 'js_runtimes': {'node': {}},
                 'remote_components': {'ejs': 'github'},
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                self.__info = ydl.extract_info(url, download=False)
-                self.__formats = self.__info.get('formats', [])
+                info_dict = ydl.extract_info(url, download=False)
+                self.__info = VideoInfo(info_dict)
         except yt_dlp.utils.DownloadError as e:
             if 'urlopen' in str(e).lower() or 'network' in str(e).lower():
                 raise YTD_exceptions(YTD_Error.NETWORK_ERROR) from e
@@ -90,19 +114,21 @@ class YouTubeDownloader():
         return self.__info
 
     def get_title(self):
-        if self.__info:
-            return self.__info.get('title', '<Title Unknown>')
+        if self.__info is not None:
+            return self.__info.title
         return '<Title Unknown>'
 
     def get_views(self):
-        if self.__info:
-            return self.__info.get('view_count', '<Number unknown>')
+        if self.__info is not None:
+            return self.__info.view_count
         return '<Number unknown>'
 
     def _get_compatible_formats(self):
         """Return formats compatible with mp4 output (ffmpeg can convert most formats)."""
+        if self.__info is None:
+            return []
         compatible_formats = []
-        for f in self.__formats:
+        for f in self.__info.formats:
             if f.get('ext') in ('mp4', 'm4a', 'webm', 'mp3', 'opus'):
                 compatible_formats.append(f)
         return compatible_formats
@@ -117,11 +143,11 @@ class YouTubeDownloader():
         audio_available = False
         video_available = False
         combined_available = False
-        
+
         for f in compat_formats:
             has_audio = f.get('acodec', 'none') != 'none'
             has_video = f.get('vcodec', 'none') != 'none'
-            
+
             if has_audio and not has_video:
                 audio_available = True
             elif has_video and not has_audio:
@@ -131,28 +157,22 @@ class YouTubeDownloader():
 
         print("\r", end='')
 
-        # Stream list structure: (label, has_audio, has_video, is_personalized)
-        # This makes the code more readable than using magic indexes
-        self.__stream_list = []
+        self.__stream_list: list = []
         idx = 0
         if combined_available:
-            # Standard combined audio+video stream
-            self.__stream_list.append(('audio+video', True, True, False))
+            self.__stream_list.append(StreamTypeOption('audio+video', True, True, False))
             idx += 1
             print(f"{idx} - standard audio-video stream")
         if video_available:
-            # Video-only stream
-            self.__stream_list.append(('video_only', False, True, False))
+            self.__stream_list.append(StreamTypeOption('video_only', False, True, False))
             idx += 1
             print(f"{idx} - video stream only")
         if audio_available:
-            # Audio-only stream
-            self.__stream_list.append(('audio_only', True, False, False))
+            self.__stream_list.append(StreamTypeOption('audio_only', True, False, False))
             idx += 1
             print(f"{idx} - audio stream only")
         if audio_available and video_available:
-            # Personalized stream (separate audio+video that needs merging)
-            self.__stream_list.append(('personalized', True, True, True))
+            self.__stream_list.append(StreamTypeOption('personalized', True, True, True))
             idx += 1
             print(f"{idx} - personalized audio-video stream")
 
@@ -160,11 +180,11 @@ class YouTubeDownloader():
         # Input sanitization and bounds checking
         if choice < 1 or choice > len(self.__stream_list):
             raise ValueError(f"Choice {choice} is out of range. Valid range: 1-{len(self.__stream_list)}")
-        
-        entry = self.__stream_list[choice - 1]
-        self.__with_audio_track = entry[1]
-        self.__with_video_track = entry[2]
-        self.__personalized = entry[3]
+
+        entry: StreamTypeOption = self.__stream_list[choice - 1]
+        self.__with_audio_track = entry.has_audio
+        self.__with_video_track = entry.has_video
+        self.__personalized = entry.is_personalized
         print(f"audio = {self.__with_audio_track}", end=' ')
         print(f"/ video = {self.__with_video_track}", end=' ')
         print("/ personalized" if self.__personalized else "/ standard")
@@ -188,28 +208,28 @@ class YouTubeDownloader():
         if self.__with_audio_track and self.__with_video_track and not self.__personalized:
             # Progressive (muxed) streams
             for f in compat_formats:
-                if (f.get('vcodec', 'none') != 'none' and 
-                    f.get('acodec', 'none') != 'none'):
+                if (f.get('vcodec', 'none') != 'none' and
+                        f.get('acodec', 'none') != 'none'):
                     filtered.append(f)
             filtered.sort(key=lambda f: f.get('height') or 0, reverse=True)
         elif self.__with_audio_track and not self.__with_video_track:
             # Audio-only adaptive (includes m4a)
             for f in compat_formats:
-                if (f.get('acodec', 'none') != 'none' and 
-                    f.get('vcodec', 'none') == 'none'):
+                if (f.get('acodec', 'none') != 'none' and
+                        f.get('vcodec', 'none') == 'none'):
                     filtered.append(f)
             filtered.sort(key=lambda f: f.get('abr') or 0, reverse=True)
         elif self.__with_video_track and not self.__with_audio_track:
             # Video-only adaptive
             for f in compat_formats:
-                if (f.get('vcodec', 'none') != 'none' and 
-                    f.get('acodec', 'none') == 'none'):
+                if (f.get('vcodec', 'none') != 'none' and
+                        f.get('acodec', 'none') == 'none'):
                     filtered.append(f)
             filtered.sort(key=lambda f: f.get('height') or 0, reverse=True)
 
         print("\r", end='')
 
-        self.__stream_list = []
+        self.__stream_list: list = []
         for f in filtered:
             format_id = f.get('format_id', '?')
             if self.__with_audio_track and not self.__with_video_track:
@@ -217,10 +237,10 @@ class YouTubeDownloader():
             else:
                 label = f"{f.get('height', '?')}p"
             codec = f.get('vcodec', f.get('acodec', '?'))
-            self.__stream_list.append((label, f"mp4 ({codec})", format_id))
+            self.__stream_list.append(StreamFormatOption(label, f"mp4 ({codec})", format_id))
 
-        for idx, elem in enumerate(self.__stream_list):
-            print(f"{idx + 1} - {elem[0]} {elem[1]} (format_id:{elem[2]})")
+        for idx, entry in enumerate(self.__stream_list):
+            print(f"{idx + 1} - {entry.label} {entry.codec_info} (format_id:{entry.format_id})")
 
     def asks_user_choice(self):
         choice = None
@@ -244,10 +264,8 @@ class YouTubeDownloader():
         # Input sanitization and bounds checking
         if choice < 1 or choice > len(self.__stream_list):
             raise ValueError(f"Choice {choice} is out of range. Valid range: 1-{len(self.__stream_list)}")
-        
-        entry = self.__stream_list[choice - 1]
-        format_id = entry[2]
-        label = entry[0]
+
+        entry: StreamFormatOption = self.__stream_list[choice - 1]
 
         if not self.__with_video_track and self.__with_audio_track and self.__personalized:
             output_dir = 'audio'
@@ -259,16 +277,16 @@ class YouTubeDownloader():
         os.makedirs(output_dir, exist_ok=True)
 
         ydl_opts = {
-            'format': format_id,
+            'format': entry.format_id,
             'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
             'quiet': False,
             'no_warnings': True,
-            'cookiesfrombrowser': (self.BROWSER_FOR_COOKIES,),
+            'cookiesfrombrowser': (self.browser,),
             'js_runtimes': {'node': {}},
             'remote_components': {'ejs': 'github'},
         }
 
-        print(f"\nDownloading {label} (format_id:{format_id})...")
+        print(f"\nDownloading {entry.label} (format_id:{entry.format_id})...")
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(self.url, download=True)
@@ -294,7 +312,7 @@ class YouTubeDownloader():
             'merge_output_format': 'mp4',
             'quiet': False,
             'no_warnings': True,
-            'cookiesfrombrowser': (self.BROWSER_FOR_COOKIES,),
+            'cookiesfrombrowser': (self.browser,),
             'js_runtimes': {'node': {}},
             'remote_components': {'ejs': 'github'},
         }
@@ -311,9 +329,17 @@ class YouTubeDownloader():
 
 
 if __name__ == '__main__':
-    downloader = YouTubeDownloader()
+    parser = argparse.ArgumentParser(description="YouTube video downloader")
+    parser.add_argument(
+        '--browser',
+        default=YouTubeDownloader.DEFAULT_BROWSER,
+        help="Browser to use for cookie extraction (e.g. chrome, firefox, safari, edge, brave). Default: chrome"
+    )
+    args = parser.parse_args()
 
-    url_user = downloader.get_url_from_user()  # (YouTubeDownloader.DEFAULT_URL) to test
+    downloader = YouTubeDownloader(browser=args.browser)
+
+    url_user = downloader.get_url_from_user()
     downloader.get_youtube_information(url_user)
     print("Title :", downloader.get_title(), "(", downloader.get_views(), "views )")
 
