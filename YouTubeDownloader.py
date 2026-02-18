@@ -108,7 +108,7 @@ class YouTubeDownloader():
         except yt_dlp.utils.DownloadError as e:
             if 'urlopen' in str(e).lower() or 'network' in str(e).lower():
                 raise YTD_exceptions(YTD_Error.NETWORK_ERROR) from e
-            raise YTD_exceptions(YTD_Error.GETINFO_ERROR, str(e)) from e
+            raise YTD_exceptions(YTD_Error.GETINFO_ERROR) from e
         except Exception as e:
             raise YTD_exceptions(YTD_Error.UNKNOWN, str(e)) from e
         return self.__info

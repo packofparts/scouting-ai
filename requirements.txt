@@ -7,20 +7,19 @@ moviepy
 supervision
 roboflow
 
-
-
-# Non-Python dependencies required:
-#
-# Node.js (https://nodejs.org) — required for YouTube bot-detection bypass
-#   macOS:          brew install node  →  https://brew.sh if you don't have Homebrew
-#   Windows:        https://nodejs.org/download.html
-#   Linux (apt):    sudo apt install nodejs npm
-#   Linux (yum):    sudo yum install nodejs npm
-#   Linux (Arch):   sudo pacman -S nodejs npm
-#
-# ffmpeg (https://ffmpeg.org) — required for merging video/audio streams
-#   macOS:          brew install ffmpeg
-#   Windows:        https://ffmpeg.org/download.html
-#   Linux (apt):    sudo apt install ffmpeg
-#   Linux (yum):    sudo yum install ffmpeg
-#   Linux (Arch):   sudo pacman -S ffmpeg
+# Note: The following non-Python dependencies must also be installed:
+# - Node.js (https://nodejs.org) - required for YouTube bot-detection bypass
+#   Installation: https://nodejs.org/en/download/
+#   macOS: 
+#     1. Install Homebrew: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+#     2. Install Node.js: brew install node
+#   Windows: download from https://nodejs.org/download.html
+#   Linux: sudo apt install nodejs npm  # Debian/Ubuntu
+#          sudo yum install nodejs npm  # RHEL/CentOS/Fedora
+#          sudo pacman -S nodejs npm   # Arch Linux
+# - ffmpeg (https://ffmpeg.org) - required for merging video/audio streams
+#   macOS: brew install ffmpeg
+#   Windows: download from https://ffmpeg.org/download.html
+#   Linux: sudo apt install ffmpeg  # Debian/Ubuntu
+#          sudo yum install ffmpeg  # RHEL/CentOS/Fedora
+#          sudo pacman -S ffmpeg    # Arch Linux
