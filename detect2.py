@@ -31,7 +31,7 @@ model_id = "1294-ai-scouting/10"
 input_video_path = "matches/match.mp4"
 output_path = "temp/output.json"
 
-target_fps = 10
+target_fps = 30
 total_frames = mp.VideoFileClip(input_video_path).n_frames
 
 

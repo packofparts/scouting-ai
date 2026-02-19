@@ -5,4 +5,5 @@ temp/
 *.class
 *.pyc
 target/
-
+cookies
+.DS_Store
