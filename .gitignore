@@ -5,5 +5,4 @@ temp/
 *.class
 *.pyc
 target/
-src/AIScout.java
 

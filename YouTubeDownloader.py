@@ -296,38 +296,7 @@ class YouTubeDownloader():
 
         print("Download complete!")
         return filename
-
-    def download_best_auto(self):
-        """
-        Convenience method: let yt-dlp pick the best audio+video and merge
-        them automatically (requires ffmpeg on PATH).
-        """
-        output_path = os.path.join(MATCHES_DIR, OUTPUT_FILENAME)
-        if os.path.exists(output_path):
-            os.remove(output_path)
-
-        ydl_opts = {
-            'format': 'bestvideo+bestaudio/best',
-            'outtmpl': output_path,
-            'merge_output_format': 'mp4',
-            'quiet': False,
-            'no_warnings': True,
-            'cookiesfrombrowser': (self.browser,),
-            'js_runtimes': {'node': {}},
-            'remote_components': {'ejs': 'github'},
-        }
-
-        print("\nDownloading best quality...")
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([self.url])
-        except Exception as e:
-            raise YTD_exceptions(YTD_Error.UNKNOWN, str(e)) from e
-
-        print("Download complete!")
-        return output_path
-
-
+        
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="YouTube video downloader")
     parser.add_argument(
