@@ -30,7 +30,7 @@ public class FRCRobot {
     File csvFile = new File(dataDir, team + ".csv");
     try {
         try (PrintWriter writer = new PrintWriter(new FileWriter(csvFile, true))) {
-            writer.println();
+            writer.println("---------------------------------------");
             for (String dataLine : positionHistory) {
                 writer.println(dataLine);
             }

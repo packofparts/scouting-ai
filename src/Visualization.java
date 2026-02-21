@@ -21,8 +21,8 @@ import java.util.Optional;
 
 public class Visualization extends JPanel {
     private static final Rectangle SIZE = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
-    private static final double WIDTH = SIZE.getWidth();
-    private static final double HEIGHT = SIZE.getHeight();
+    protected static final double WIDTH = SIZE.getWidth();
+    protected static final double HEIGHT = SIZE.getHeight();
     private static final long serialVersionUID = 1L;
 
     private static boolean auto = false;
@@ -154,6 +154,7 @@ public class Visualization extends JPanel {
             prevPoint = point;
             prevIsAuto = isAuto;
         }
+        g.dispose();
     }
 
     public static void drawImage(double x, double y, double width, double height, float direction, BufferedImage image, Graphics g) {
