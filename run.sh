@@ -20,7 +20,7 @@ fi
 
 read -p "Need 2 run Detector? (y/n) " detect
 if [[ "$detect" =~ ^[Yy]$ ]]; then
-    python3 detector.py
+    python3.12 detector.py
 
     if [ $? -ne 0 ]; then
         echo "Detector failed with error code $?"
