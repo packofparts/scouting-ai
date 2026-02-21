@@ -27,7 +27,7 @@ SET /p detect=
 
 IF /I "%detect%"=="y" (
 
-    call python detect2.py
+    call python3.12 detect2.py
 
     IF !ErrorLevel! NEQ 0 (
         echo Detector failed with error code !ErrorLevel!
@@ -45,6 +45,7 @@ IF /I "%analyze%"=="y" (
     echo 1. in order from closest to furthest away from camera
     echo 2. separated by spaces
     echo 3. with no trailing whitespace 
+    echo 4. enter no_show if a team fails to make a good faith effort in attending the match
     echo ------------------------------------
     echo Red Alliance: 
     SET /p red=

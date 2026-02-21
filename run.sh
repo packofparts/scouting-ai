@@ -36,6 +36,7 @@ if [[ "$analyze" =~ ^[Yy]$ ]]; then
     echo "1. in order from closest to furthest away from camera"
     echo "2. separated by spaces"
     echo "3. with no trailing whitespace"
+    echo "4. enter no_show if a team fails to make a good faith effort in attending the match"
     echo "------------------------------------"
     read -p "Red Alliance: " red
     read -p "Blue Alliance: " blue
