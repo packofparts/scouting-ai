@@ -14,7 +14,6 @@ import java.util.Optional;
 public class AIScout {
     private static HashSet<Integer> autoFrameIndices = new HashSet<>();
     private static HashSet<Integer> teleFrameIndices = new HashSet<>();
-    // team numbers in memoriam
 
     // Relative locations of field joints (i.e. 0.5 is half of the screen)
     // All x vals must differ to avoid errors in pose estimation
@@ -30,37 +29,39 @@ public class AIScout {
     public static void main(String[] args) {
 
         if (args.length != 6) {
-            throw new IllegalArgumentException(
-                    "Exactly 6 team numbers must be provided as arguments, not " + args.length);
+            throw new IllegalArgumentException("Exactly 6 team numbers must be provided as arguments, not " + args.length);
         }
         ArrayList<ArrayList<Optional<Point>>> detections = detect();
 
         // Finds the first frame with 6 robots detected
-        int index = 0;
+        int firstFrameIndex = 0;
 
         int amountShows = 0;
+        int redShows = 0;
+        int blueShows = 0;
         for (int i = 0; i < args.length; i++) {
             if (!args[i].equals("no_show")) {
                 amountShows++;
+                if (i < 3) {
+                    redShows++;
+                } else {
+                    blueShows++;
+                }
             }
         }
         FRCRobot[] robots = new FRCRobot[amountShows];
         int insertionIndex = 0;
-        while (index < detections.size() && detections.get(index).size() != amountShows) {
-            index++;
+        while (firstFrameIndex < detections.size() && detections.get(firstFrameIndex).size() != amountShows) {
+            firstFrameIndex++;
         }
-        if (index >= detections.size()) {
+        if (firstFrameIndex >= detections.size()) {
             throw new IllegalStateException(
-                    "Cannot confirm starting point. No frame with " + amountShows
-                            + " robots detected found in the video. Please abandon this video and try another one, or check that the detector is working correctly. Exiting");
+                    "Cannot confirm starting point. No frame with " + amountShows + " robots detected found in the video. Please abandon this video and try another one, or check that the detector is working correctly. Exiting");
         }
 
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("First frame with " + amountShows + " robots detected is at index " + index
-                + " (which is about "
-                + Math.round(index * 1000.0 / detections.size()) / 10.0
-                + "% of the video). Confirm as starting point? (y/n)");
+        System.out.println("First frame with " + amountShows + " robots detected is at index " + firstFrameIndex + " (which is about " + Math.round(firstFrameIndex * 1000.0 / detections.size()) / 10.0 + "% of the video). Confirm as starting point? (y/n)");
 
         if (!scanner.nextLine().equalsIgnoreCase("y")) {
             scanner.close();
@@ -72,7 +73,7 @@ public class AIScout {
 
         System.out.println("Starting point confirmed. Initializing robots and writing data...");
 
-        ArrayList<Optional<Point>> startingDetections = detections.get(index);
+        ArrayList<Optional<Point>> startingDetections = detections.get(firstFrameIndex);
 
         // Splits frame into left and right halvesby x value, then sorts each half by y
         // value, then concatenates the halves back together. This way, the robots are
@@ -84,19 +85,6 @@ public class AIScout {
         String[] firstHalf = Arrays.copyOfRange(args, 0, 3);
         String[] secondHalf = Arrays.copyOfRange(args, 3, args.length);
 
-        int redShows = 0;
-        for (int i = 0; i < firstHalf.length; i++) {
-            if (!firstHalf[i].equals("no_show")) {
-                redShows++;
-            }
-        }
-        int blueShows = 0;
-        for (int i = 0; i < secondHalf.length; i++) {
-            if (!secondHalf[i].equals("no_show")) {
-                blueShows++;
-            }
-        }
-
         List<Optional<Point>> leftHalf = startingDetections.subList(0, redShows);
 
         leftHalf.sort(Comparator.comparing(Optional::get, Comparator.comparing(Point::getY).reversed()));
@@ -104,28 +92,28 @@ public class AIScout {
         List<Optional<Point>> rightHalf = startingDetections.subList(redShows, redShows + blueShows);
         rightHalf.sort(Comparator.comparing(Optional::get, Comparator.comparing(Point::getY).reversed()));
 
-        int index2 = 0;
+        int pointIndex = 0;
         for (int i = 0; i < firstHalf.length; i++) {
             if (!firstHalf[i].equals("no_show")) {
-                Point coord = leftHalf.get(index2).get();
+                Point coord = leftHalf.get(pointIndex).get();
                 robots[insertionIndex] = new FRCRobot(coord, firstHalf[i]);
                 insertionIndex++;
-                index2++;
+                pointIndex++;
             }
         }
-        index2 = 0;
+        pointIndex = 0;
         for (int i = 0; i < secondHalf.length; i++) {
             if (!secondHalf[i].equals("no_show")) {
-                Point coord = rightHalf.get(index2).get();
+                Point coord = rightHalf.get(pointIndex).get();
                 robots[insertionIndex] = new FRCRobot(coord, secondHalf[i]);
                 insertionIndex++;
-                index2++;
+                pointIndex++;
             }
         }
 
         // For every frame, assign robots new positions using Hungarian Algorithm and
         // writes data to robot files
-        for (int i = index + 1; i < detections.size(); i++) {
+        for (int i = firstFrameIndex + 1; i < detections.size(); i++) {
             System.out.print("\r");
 
             double percent = (double) i / (detections.size() - 1);
