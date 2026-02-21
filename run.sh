@@ -20,8 +20,7 @@ fi
 
 read -p "Need 2 run Detector? (y/n) " detect
 if [[ "$detect" =~ ^[Yy]$ ]]; then
-
-    python3 detect2.py
+    python3.12 detector.py
 
     if [ $? -ne 0 ]; then
         echo "Detector failed with error code $?"
@@ -38,11 +37,11 @@ if [[ "$analyze" =~ ^[Yy]$ ]]; then
     echo "3. with no trailing whitespace"
     echo "4. enter no_show if a team fails to make a good faith effort in attending the match"
     echo "------------------------------------"
-    read -p "Red Alliance: " red
-    read -p "Blue Alliance: " blue
+    read -p "Team numbers of robots towards the left side of the field:" left
+    read -p "Team numbers of robots towards the right side of the field:" right
 
     javac src/*.java json/*.java
-    java -cp "src:json" AIScout $red $blue
+    java -cp "src:json" AIScout $left $right
 
     if [ $? -ne 0 ]; then
         echo "Analyzer failed with error code $?"

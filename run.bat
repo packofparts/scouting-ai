@@ -27,7 +27,7 @@ SET /p detect=
 
 IF /I "%detect%"=="y" (
 
-    call python3.12 detect2.py
+    call python3.12 detector.py
 
     IF !ErrorLevel! NEQ 0 (
         echo Detector failed with error code !ErrorLevel!
@@ -47,13 +47,13 @@ IF /I "%analyze%"=="y" (
     echo 3. with no trailing whitespace 
     echo 4. enter no_show if a team fails to make a good faith effort in attending the match
     echo ------------------------------------
-    echo Red Alliance: 
-    SET /p red=
-    echo Blue Alliance:
-    SET /p blue=
+    echo Team numbers of robots towards the left side of the field:
+    SET /p left=
+    echo Team numbers of robots towards the right side of the field:
+    SET /p right=
 
     call javac src/*.java json/*.java
-    call java -cp "src;json" AIScout !red! !blue!
+    call java -cp "src;json" AIScout !left! !right!
 
     IF !ErrorLevel! NEQ 0 (
         echo Analyzer failed with error code !ErrorLevel!

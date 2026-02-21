@@ -9,11 +9,25 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Scanner;
 
+import javax.imageio.ImageIO;
+import java.io.IOException;
+import javax.swing.JPanel;
+import javax.swing.JFrame;
+import java.awt.Graphics;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+
 import java.util.Optional;
 
-public class AIScout {
+public class AIScout extends JPanel{
     private static HashSet<Integer> autoFrameIndices = new HashSet<>();
     private static HashSet<Integer> teleFrameIndices = new HashSet<>();
+    private static final long serialVersionUID = 1L; //Recommended for JPanel subclasses
+    
+    //Relative locations of field joints (i.e. 0.5 is half of the screen)
+    //Ideally, all x & y vals must differ to avoid errors in pose estimation
 
     // Relative locations of field joints (i.e. 0.5 is half of the screen)
     // All x vals must differ to avoid errors in pose estimation
@@ -25,27 +39,55 @@ public class AIScout {
     private static final Point BOTTOM_LEFT = new Point(0.02259, 0.69198);
     private static final Point TOP_RIGHT = new Point(0.84483, 0.21941);
     private static final Point BOTTOM_RIGHT = new Point(0.98811, 0.72152);
+    protected static final boolean RED_ON_LEFT = true; // Whether the red alliance is on the left side of the field in the video. If false, then the blue alliance is on the left.
 
-    public static void main(String[] args) {
+    public AIScout() {
+        //Empty constructor for JPanel subclass
+    }
 
+    public static void main(String[] args) throws IOException {
+        
         if (args.length != 6) {
             throw new IllegalArgumentException("Exactly 6 team numbers must be provided as arguments, not " + args.length);
         }
         ArrayList<ArrayList<Optional<Point>>> detections = detect();
 
+        JPanel confirm = new AIScout();
+
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.setResizable(false);
+        frame.setSize((int) Visualization.WIDTH/2, (int) Visualization.HEIGHT/2);
+        frame.setLocation(0, 0);
+        frame.setName("The P.A.C.K. (Predictive, Analytical, and Competitive Knowledge-base) Field Calibration Confirmation");
+        frame.setTitle("The P.A.C.K. (Predictive, Analytical, and Competitive Knowledge-base) Field Calibration Confirmation");
+        frame.setIconImage(ImageIO.read(new File("pop.png")));
+        frame.add(confirm);
+        frame.setVisible(true);
+        System.out.println("Is field properly aligned and the alliances consistent in the window that just opened? (y/n)");
+
+        Scanner scanner = new Scanner(System.in);
+        if (!scanner.nextLine().equalsIgnoreCase("y")) {
+            scanner.close();
+            frame.dispose();
+            throw new IllegalStateException("Field not properly aligned. Please adjust TOP_LEFT, BOTTOM_LEFT, TOP_RIGHT, BOTTOM_RIGHT, and RED_ON_LEFT so that the green lines are exactly on the field boundaries and the alliances match, then try again.");
+        }
+        frame.dispose();
+        
+
         // Finds the first frame with 6 robots detected
         int firstFrameIndex = 0;
 
         int amountShows = 0;
-        int redShows = 0;
-        int blueShows = 0;
+        int leftShows = 0;
+        int rightShows = 0;
         for (int i = 0; i < args.length; i++) {
             if (!args[i].equals("no_show")) {
                 amountShows++;
                 if (i < 3) {
-                    redShows++;
+                    leftShows++;
                 } else {
-                    blueShows++;
+                    rightShows++;
                 }
             }
         }
@@ -55,11 +97,10 @@ public class AIScout {
             firstFrameIndex++;
         }
         if (firstFrameIndex >= detections.size()) {
-            throw new IllegalStateException(
-                    "Cannot confirm starting point. No frame with " + amountShows + " robots detected found in the video. Please abandon this video and try another one, or check that the detector is working correctly. Exiting");
+            scanner.close();
+            throw new IllegalStateException("Cannot confirm starting point. No frame with " + amountShows + " robots detected found in the video. Please abandon this video and try another one, or check that the detector is working correctly. Exiting");
         }
 
-        Scanner scanner = new Scanner(System.in);
 
         System.out.println("First frame with " + amountShows + " robots detected is at index " + firstFrameIndex + " (which is about " + Math.round(firstFrameIndex * 1000.0 / detections.size()) / 10.0 + "% of the video). Confirm as starting point? (y/n)");
 
@@ -85,11 +126,11 @@ public class AIScout {
         String[] firstHalf = Arrays.copyOfRange(args, 0, 3);
         String[] secondHalf = Arrays.copyOfRange(args, 3, args.length);
 
-        List<Optional<Point>> leftHalf = startingDetections.subList(0, redShows);
+        List<Optional<Point>> leftHalf = startingDetections.subList(0, leftShows);
 
         leftHalf.sort(Comparator.comparing(Optional::get, Comparator.comparing(Point::getY).reversed()));
 
-        List<Optional<Point>> rightHalf = startingDetections.subList(redShows, redShows + blueShows);
+        List<Optional<Point>> rightHalf = startingDetections.subList(leftShows, leftShows + rightShows);
         rightHalf.sort(Comparator.comparing(Optional::get, Comparator.comparing(Point::getY).reversed()));
 
         int pointIndex = 0;
@@ -165,7 +206,6 @@ public class AIScout {
 
     public static ArrayList<ArrayList<Optional<Point>>> detect() {
         // Run detector, then read the output
-        File file = new File("temp/output.json");
         ArrayList<ArrayList<Optional<Point>>> allDetections = new ArrayList<>();
 
         ArrayList<Detection> detections = new ArrayList<>();
@@ -315,5 +355,38 @@ public class AIScout {
         }
         return Optional.empty();
     }
+    
+    public void paint(Graphics g){
+        super.paint(g);
 
+        try {
+            Visualization.drawImage(0, 0, Visualization.WIDTH/2, Visualization.HEIGHT/2, 0, ImageIO.read(new File("matches/cover.png")), g);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setStroke(new BasicStroke(5f));
+        g2d.setColor(Color.GREEN);
+        g2d.drawLine((int) (TOP_LEFT.getX() * Visualization.WIDTH/2), (int) (TOP_LEFT.getY() * Visualization.HEIGHT/2), (int) (TOP_RIGHT.getX() * Visualization.WIDTH/2), (int) (TOP_RIGHT.getY() * Visualization.HEIGHT/2));
+        g2d.drawLine((int) (TOP_LEFT.getX() * Visualization.WIDTH/2), (int) (TOP_LEFT.getY() * Visualization.HEIGHT/2), (int) (BOTTOM_LEFT.getX() * Visualization.WIDTH/2), (int) (BOTTOM_LEFT.getY() * Visualization.HEIGHT/2));
+        g2d.drawLine((int) (BOTTOM_LEFT.getX() * Visualization.WIDTH/2), (int) (BOTTOM_LEFT.getY() * Visualization.HEIGHT/2), (int) (BOTTOM_RIGHT.getX() * Visualization.WIDTH/2), (int) (BOTTOM_RIGHT.getY() * Visualization.HEIGHT/2));
+        g2d.drawLine((int) (TOP_RIGHT.getX() * Visualization.WIDTH/2), (int) (TOP_RIGHT.getY() * Visualization.HEIGHT/2), (int) (BOTTOM_RIGHT.getX() * Visualization.WIDTH/2), (int) (BOTTOM_RIGHT.getY() * Visualization.HEIGHT/2));
+        
+        g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 23));
+        if (RED_ON_LEFT) {
+            g.setColor(Color.RED);
+            g.drawString("Red Alliance Side", (int)(Visualization.WIDTH/16), (int) (Visualization.HEIGHT/4));
+            g.setColor(Color.BLUE);
+            g.drawString("Blue Alliance Side", (int)(Visualization.WIDTH/4 + Visualization.WIDTH/16), (int) (Visualization.HEIGHT/4));
+        } else {
+            g.setColor(Color.BLUE);
+            g.drawString("Blue Alliance Side", (int)(Visualization.WIDTH/16), (int) (Visualization.HEIGHT/4));
+            g.setColor(Color.RED);
+            g.drawString("Red Alliance Side", (int)(Visualization.WIDTH/4 + Visualization.WIDTH/16), (int) (Visualization.HEIGHT/4));
+        }
+        g.dispose();
+        g2d.dispose();
+    }
+    
 }

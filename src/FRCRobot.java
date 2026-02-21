@@ -18,7 +18,11 @@ public class FRCRobot {
     
     public void updatePosition(Point pos, boolean isAuto){//isAuto is true for auto, false for teleop
         this.pos = pos;
-        positionHistory.add(isAuto + "," + pos.getX() + "," + pos.getY());
+        if (AIScout.RED_ON_LEFT) {
+            positionHistory.add(isAuto + "," + (1-pos.getX()) + "," + (1-pos.getY())); // Invert x and y coordinates to match visualization orientation (if red is on the left, we want to flip the coordinates to match the visualization's orientation)
+        } else {
+            positionHistory.add(isAuto + "," + pos.getX() + "," + pos.getY());
+        }
     }
     
     public void writeData(){ 
@@ -30,7 +34,7 @@ public class FRCRobot {
     File csvFile = new File(dataDir, team + ".csv");
     try {
         try (PrintWriter writer = new PrintWriter(new FileWriter(csvFile, true))) {
-            writer.println();
+            writer.println("---------------------------------------");
             for (String dataLine : positionHistory) {
                 writer.println(dataLine);
             }
