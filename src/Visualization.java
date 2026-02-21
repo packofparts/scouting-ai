@@ -10,6 +10,7 @@ import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.Color;
+import java.awt.GradientPaint;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics2D;
@@ -22,7 +23,7 @@ import java.util.Optional;
 public class Visualization extends JPanel {
     private static final Rectangle SIZE = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
     protected static final double WIDTH = SIZE.getWidth();
-    protected static final double HEIGHT = SIZE.getHeight();
+    protected static final double HEIGHT = SIZE.getHeight() - 50.0; // -50 to account for taskbar
     private static final long serialVersionUID = 1L;
 
     private static boolean auto = false;
@@ -131,7 +132,9 @@ public class Visualization extends JPanel {
         Optional<Point> prevPoint = Optional.empty();
         Optional<Boolean> prevIsAuto = Optional.empty();
 
-        for (int i = 0; i < points.size() && i < states.size(); i++) {
+        Graphics2D g2d = (Graphics2D) g;
+
+        for (int i = 0; i < points.size() && i < states.size(); i+=2) {
             Optional<Point> point = points.get(i);
             Optional<Boolean> isAuto = states.get(i);
 
@@ -139,17 +142,24 @@ public class Visualization extends JPanel {
                 if (isAuto.get() && prevIsAuto.get()) {
                     g.setColor(Color.PINK);
                     if (auto) {
-                        g.drawLine((int) (prevPoint.get().getX() * WIDTH), (int) (prevPoint.get().getY() * HEIGHT), (int) (point.get().getX() * WIDTH), (int) (point.get().getY() * HEIGHT));
+                        int x1 = (int) ((1-prevPoint.get().getX()) * WIDTH);
+                        int y1 = (int) ((1-prevPoint.get().getY()) * HEIGHT);
+                        int x2 = (int) ((1-point.get().getX()) * WIDTH);
+                        int y2 = (int) ((1-point.get().getY()) * HEIGHT);
+                        g2d.setPaint(new GradientPaint(x1, y1, Color.PINK, x2, y2, Color.RED, false));
+                        g2d.drawLine(x1, y1, x2, y2);
                     }
                 } else if (!isAuto.get() && !prevIsAuto.get()) {
                     g.setColor(Color.CYAN);
                     if (tele) {
-                        g.drawLine((int) (prevPoint.get().getX() * WIDTH), (int) (prevPoint.get().getY() * HEIGHT), (int) (point.get().getX() * WIDTH), (int) (point.get().getY() * HEIGHT));
+                        int x1 = (int) ((1-prevPoint.get().getX()) * WIDTH);
+                        int y1 = (int) ((1-prevPoint.get().getY()) * HEIGHT);
+                        int x2 = (int) ((1-point.get().getX()) * WIDTH);
+                        int y2 = (int) ((1-point.get().getY()) * HEIGHT);
+                        g2d.setPaint(new GradientPaint(x1, y1, Color.CYAN, x2, y2, Color.BLUE, false));
+                        g2d.drawLine(x1, y1, x2, y2);
                     }
-                } else {
-                    g.setColor(Color.YELLOW);
-                    g.drawLine((int) (prevPoint.get().getX() * WIDTH), (int) (prevPoint.get().getY() * HEIGHT), (int) (point.get().getX() * WIDTH), (int) (point.get().getY() * HEIGHT));
-                }
+                } 
             }
             prevPoint = point;
             prevIsAuto = isAuto;
