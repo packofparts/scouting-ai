@@ -40,7 +40,7 @@ chmod +x setup.bat
 pip install -r requirements.txt
 ```
 
-7. Calibrate the field! Inside src/AIScout.java, modify the constants TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, and BOTTOM_RIGHT to match with the **relative coordinates** of the corners of the game field. For example:
+7. Calibrate the field! Inside src/AIScout.java, modify the constants TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, and RED_ON_LEFT to match with the **relative coordinates** of the corners and orientation of the game field. For example:
 
 <image src="samples/fieldCalibration.png" width="500" controls></image>
 
@@ -78,4 +78,4 @@ chmod +x run.sh
 
 9. *Some AI assistance is used in this project.*
 
-# Good Luck With Scouting!
+# See You at Worlds!

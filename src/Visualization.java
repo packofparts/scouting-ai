@@ -139,23 +139,19 @@ public class Visualization extends JPanel {
             Optional<Boolean> isAuto = states.get(i);
 
             if (point.isPresent() && isAuto.isPresent() && prevPoint.isPresent() && prevIsAuto.isPresent()) {
+                int x1 = (int) (prevPoint.get().getX() * WIDTH);
+                int y1 = (int) (prevPoint.get().getY() * HEIGHT);
+                int x2 = (int) (point.get().getX() * WIDTH);
+                int y2 = (int) (point.get().getY() * HEIGHT);
                 if (isAuto.get() && prevIsAuto.get()) {
                     g.setColor(Color.PINK);
                     if (auto) {
-                        int x1 = (int) ((1-prevPoint.get().getX()) * WIDTH);
-                        int y1 = (int) ((1-prevPoint.get().getY()) * HEIGHT);
-                        int x2 = (int) ((1-point.get().getX()) * WIDTH);
-                        int y2 = (int) ((1-point.get().getY()) * HEIGHT);
                         g2d.setPaint(new GradientPaint(x1, y1, Color.PINK, x2, y2, Color.RED, false));
                         g2d.drawLine(x1, y1, x2, y2);
                     }
                 } else if (!isAuto.get() && !prevIsAuto.get()) {
                     g.setColor(Color.CYAN);
                     if (tele) {
-                        int x1 = (int) ((1-prevPoint.get().getX()) * WIDTH);
-                        int y1 = (int) ((1-prevPoint.get().getY()) * HEIGHT);
-                        int x2 = (int) ((1-point.get().getX()) * WIDTH);
-                        int y2 = (int) ((1-point.get().getY()) * HEIGHT);
                         g2d.setPaint(new GradientPaint(x1, y1, Color.CYAN, x2, y2, Color.BLUE, false));
                         g2d.drawLine(x1, y1, x2, y2);
                     }

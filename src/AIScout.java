@@ -16,6 +16,7 @@ import javax.swing.JFrame;
 import java.awt.Graphics;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 
 import java.util.Optional;
@@ -38,6 +39,7 @@ public class AIScout extends JPanel{
     private static final Point BOTTOM_LEFT = new Point(0.02259, 0.69198);
     private static final Point TOP_RIGHT = new Point(0.84483, 0.21941);
     private static final Point BOTTOM_RIGHT = new Point(0.98811, 0.72152);
+    protected static final boolean RED_ON_LEFT = true; // Whether the red alliance is on the left side of the field in the video. If false, then the blue alliance is on the left.
 
     public AIScout() {
         //Empty constructor for JPanel subclass
@@ -62,13 +64,13 @@ public class AIScout extends JPanel{
         frame.setIconImage(ImageIO.read(new File("pop.png")));
         frame.add(confirm);
         frame.setVisible(true);
-        System.out.println("Is field properly aligned in the window that just opened? (y/n)");
+        System.out.println("Is field properly aligned and the alliances consistent in the window that just opened? (y/n)");
 
         Scanner scanner = new Scanner(System.in);
         if (!scanner.nextLine().equalsIgnoreCase("y")) {
             scanner.close();
             frame.dispose();
-            throw new IllegalStateException("Field not properly aligned. Please adjust TOP_LEFT, BOTTOM_LEFT, TOP_RIGHT, and BOTTOM_RIGHT so that the green lines are exactly on the field boundaries, then try again.");
+            throw new IllegalStateException("Field not properly aligned. Please adjust TOP_LEFT, BOTTOM_LEFT, TOP_RIGHT, BOTTOM_RIGHT, and RED_ON_LEFT so that the green lines are exactly on the field boundaries and the alliances match, then try again.");
         }
         frame.dispose();
         
@@ -77,15 +79,15 @@ public class AIScout extends JPanel{
         int firstFrameIndex = 0;
 
         int amountShows = 0;
-        int redShows = 0;
-        int blueShows = 0;
+        int leftShows = 0;
+        int rightShows = 0;
         for (int i = 0; i < args.length; i++) {
             if (!args[i].equals("no_show")) {
                 amountShows++;
                 if (i < 3) {
-                    redShows++;
+                    leftShows++;
                 } else {
-                    blueShows++;
+                    rightShows++;
                 }
             }
         }
@@ -124,11 +126,11 @@ public class AIScout extends JPanel{
         String[] firstHalf = Arrays.copyOfRange(args, 0, 3);
         String[] secondHalf = Arrays.copyOfRange(args, 3, args.length);
 
-        List<Optional<Point>> leftHalf = startingDetections.subList(0, redShows);
+        List<Optional<Point>> leftHalf = startingDetections.subList(0, leftShows);
 
         leftHalf.sort(Comparator.comparing(Optional::get, Comparator.comparing(Point::getY).reversed()));
 
-        List<Optional<Point>> rightHalf = startingDetections.subList(redShows, redShows + blueShows);
+        List<Optional<Point>> rightHalf = startingDetections.subList(leftShows, leftShows + rightShows);
         rightHalf.sort(Comparator.comparing(Optional::get, Comparator.comparing(Point::getY).reversed()));
 
         int pointIndex = 0;
@@ -371,6 +373,18 @@ public class AIScout extends JPanel{
         g2d.drawLine((int) (BOTTOM_LEFT.getX() * Visualization.WIDTH/2), (int) (BOTTOM_LEFT.getY() * Visualization.HEIGHT/2), (int) (BOTTOM_RIGHT.getX() * Visualization.WIDTH/2), (int) (BOTTOM_RIGHT.getY() * Visualization.HEIGHT/2));
         g2d.drawLine((int) (TOP_RIGHT.getX() * Visualization.WIDTH/2), (int) (TOP_RIGHT.getY() * Visualization.HEIGHT/2), (int) (BOTTOM_RIGHT.getX() * Visualization.WIDTH/2), (int) (BOTTOM_RIGHT.getY() * Visualization.HEIGHT/2));
         
+        g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 23));
+        if (RED_ON_LEFT) {
+            g.setColor(Color.RED);
+            g.drawString("Red Alliance Side", (int)(Visualization.WIDTH/16), (int) (Visualization.HEIGHT/4));
+            g.setColor(Color.BLUE);
+            g.drawString("Blue Alliance Side", (int)(Visualization.WIDTH/4 + Visualization.WIDTH/16), (int) (Visualization.HEIGHT/4));
+        } else {
+            g.setColor(Color.BLUE);
+            g.drawString("Blue Alliance Side", (int)(Visualization.WIDTH/16), (int) (Visualization.HEIGHT/4));
+            g.setColor(Color.RED);
+            g.drawString("Red Alliance Side", (int)(Visualization.WIDTH/4 + Visualization.WIDTH/16), (int) (Visualization.HEIGHT/4));
+        }
         g.dispose();
         g2d.dispose();
     }
