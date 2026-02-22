@@ -36,7 +36,6 @@ clip = mp.VideoFileClip(input_video_path)
 total_frames = clip.n_frames
 
 clip.save_frame("matches/cover.png", t=0)
-raise ValueError()
 
 
 output = sv.JSONSink(output_path)
