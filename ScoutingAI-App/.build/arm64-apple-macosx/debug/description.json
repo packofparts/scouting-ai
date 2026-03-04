@@ -1,0 +1,434 @@
+{
+  "builtTestProducts" : [
+
+  ],
+  "copyCommands" : {
+
+  },
+  "explicitTargetDependencyImportCheckingMode" : {
+    "none" : {
+
+    }
+  },
+  "generatedSourceTargetSet" : [
+
+  ],
+  "pluginDescriptions" : [
+
+  ],
+  "swiftCommands" : {
+    "C.ScoutingAI-arm64-apple-macosx26.0-debug.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/sources",
+      "importPath" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/AnalyzerView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/AppState.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/ContentView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/DetectorView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/DownloadView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/ScoutingAIApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/SetupView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/ShellRunner.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/TerminalView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/VisualizationView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "ScoutingAI",
+      "moduleOutputPath" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/Modules/ScoutingAI.swiftmodule",
+      "objects" : [
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/AnalyzerView.swift.o",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/AppState.swift.o",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/ContentView.swift.o",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/DetectorView.swift.o",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/DownloadView.swift.o",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/ScoutingAIApp.swift.o",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/SetupView.swift.o",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/ShellRunner.swift.o",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/TerminalView.swift.o",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/VisualizationView.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-incremental",
+        "-enable-batch-mode",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-j10",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "ScoutingAI_main",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "scoutingai_app"
+      ],
+      "outputFileMapPath" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/AnalyzerView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/AppState.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/ContentView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/DetectorView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/DownloadView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/ScoutingAIApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/SetupView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/ShellRunner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/TerminalView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/VisualizationView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/Modules/ScoutingAI.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/AnalyzerView.swift",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/AppState.swift",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/ContentView.swift",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/DetectorView.swift",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/DownloadView.swift",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/ScoutingAIApp.swift",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/SetupView.swift",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/ShellRunner.swift",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/TerminalView.swift",
+        "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/VisualizationView.swift"
+      ],
+      "tempsPath" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build",
+      "wholeModuleOptimization" : false
+    }
+  },
+  "swiftFrontendCommands" : {
+
+  },
+  "swiftTargetScanArgs" : {
+    "ScoutingAI" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "ScoutingAI",
+      "-package-name",
+      "scoutingai_app",
+      "-c",
+      "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/AnalyzerView.swift",
+      "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/AppState.swift",
+      "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/ContentView.swift",
+      "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/DetectorView.swift",
+      "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/DownloadView.swift",
+      "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/ScoutingAIApp.swift",
+      "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/SetupView.swift",
+      "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/ShellRunner.swift",
+      "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/TerminalView.swift",
+      "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/VisualizationView.swift",
+      "-I",
+      "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-incremental",
+      "-enable-batch-mode",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-j10",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "ScoutingAI_main",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "scoutingai_app",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ]
+  },
+  "targetDependencyMap" : {
+    "ScoutingAI" : [
+
+    ]
+  },
+  "testDiscoveryCommands" : {
+
+  },
+  "testEntryPointCommands" : {
+
+  },
+  "traitConfiguration" : {
+    "default" : {
+
+    }
+  },
+  "writeCommands" : {
+    "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI-entitlement.plist" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<entitlement-plist>"
+        },
+        {
+          "kind" : "virtual",
+          "name" : "<com.apple.security.get-task-allow>"
+        }
+      ],
+      "outputFilePath" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI-entitlement.plist"
+    },
+    "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/AnalyzerView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/AppState.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/ContentView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/DetectorView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/DownloadView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/ScoutingAIApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/SetupView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/ShellRunner.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/TerminalView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/Sources/ScoutingAI/VisualizationView.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/sources"
+    },
+    "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/AnalyzerView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/AppState.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/ContentView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/DetectorView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/DownloadView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/ScoutingAIApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/SetupView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/ShellRunner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/TerminalView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.build/VisualizationView.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/ScoutingAI.product/Objects.LinkFileList"
+    },
+    "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt" : {
+      "alwaysOutOfDate" : true,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<swift-get-version>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+        }
+      ],
+      "outputFilePath" : "/Users/changhyunglee/projects/Robotics/scouting-ai/ScoutingAI-App/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+    }
+  }
+}
