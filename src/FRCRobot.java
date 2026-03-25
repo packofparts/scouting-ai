@@ -9,20 +9,23 @@ public class FRCRobot {
     private Point pos; //Position of the robot
     private String team; //Robot's team number
     private List<String> positionHistory; //Stores position data for CSV output
-    
-    public FRCRobot(Point pos, String team){
+    /** True if this robot began the match on the red alliance side of the field (per AIScout.RED_ON_LEFT). */
+    private final boolean startedOnRedAlliance;
+
+    public FRCRobot(Point pos, String team, boolean startedOnRedAlliance) {
         this.pos = pos;
         this.team = team;
+        this.startedOnRedAlliance = startedOnRedAlliance;
         this.positionHistory = new ArrayList<>();
         updatePosition(pos, true);
     }
-    
+
     public void updatePosition(Point pos, boolean isAuto){//isAuto is true for auto, false for teleop
         this.pos = pos;
         if (AIScout.RED_ON_LEFT) {
-            positionHistory.add(isAuto + "," + (1-pos.getX()) + "," + (1-pos.getY())); // Invert x and y coordinates to match visualization orientation (if red is on the left, we want to flip the coordinates to match the visualization's orientation)
+            positionHistory.add(isAuto + "," + (1-pos.getX()) + "," + (1-pos.getY()) + "," + startedOnRedAlliance);
         } else {
-            positionHistory.add(isAuto + "," + pos.getX() + "," + pos.getY());
+            positionHistory.add(isAuto + "," + pos.getX() + "," + pos.getY() + "," + startedOnRedAlliance);
         }
     }
     

@@ -1,4 +1,3 @@
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -220,7 +219,7 @@ public class AIScout extends JPanel{
         for (int i = 0; i < firstHalf.length; i++) {
             if (!firstHalf[i].equals("no_show")) {
                 Point coord = leftHalf.get(pointIndex).get();
-                robots[insertionIndex] = new FRCRobot(coord, firstHalf[i]);
+                robots[insertionIndex] = new FRCRobot(coord, firstHalf[i], RED_ON_LEFT);
                 insertionIndex++;
                 pointIndex++;
             }
@@ -229,7 +228,7 @@ public class AIScout extends JPanel{
         for (int i = 0; i < secondHalf.length; i++) {
             if (!secondHalf[i].equals("no_show")) {
                 Point coord = rightHalf.get(pointIndex).get();
-                robots[insertionIndex] = new FRCRobot(coord, secondHalf[i]);
+                robots[insertionIndex] = new FRCRobot(coord, secondHalf[i], !RED_ON_LEFT);
                 insertionIndex++;
                 pointIndex++;
             }

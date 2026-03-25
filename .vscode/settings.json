@@ -1,0 +1,4 @@
+{
+  "java.project.sourcePaths": ["src", "json"],
+  "java.project.outputPath": "bin"
+}
