@@ -27,7 +27,7 @@ import moviepy as mp
 enablePrint()
 
 
-model_id = "1294-ai-scouting/13"
+model_id = "1294-ai-scouting/14"
 input_video_path = "matches/match.mp4"
 output_path = "temp/output.json"
 
