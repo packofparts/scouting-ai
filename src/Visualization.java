@@ -23,19 +23,20 @@ import java.awt.Graphics2D;
 
 import java.util.Scanner;
 import java.util.ArrayList;
-import java.util.Optional;
 
 
 public class Visualization extends JPanel {
     private static final Rectangle SIZE = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
     protected static final double WIDTH = SIZE.getWidth();
-    protected static final double HEIGHT = SIZE.getHeight() - 50.0; // -50 to account for taskbar
+    protected static final double HEIGHT = SIZE.getHeight() - 67.6767676767676767676767676767; // -67 to account for taskbar
     private static final long serialVersionUID = 1L;
 
     private static boolean auto = false;
     private static boolean tele = false;
 
     private static ArrayList<MatchData> allMatches = new ArrayList<>();
+
+    private static final double MIN_DIST = 0.0089;// Minimum distance in field coordinates (0..1) for a point to be considered "visited" for heatmap purposes
 
     private static final int HEAT_W = 200;
     private static final int HEAT_H = 120;
@@ -46,8 +47,8 @@ public class Visualization extends JPanel {
     private String sideFilter = "both"; // "both", "left", "right"
 
     static class MatchData {
-        ArrayList<Optional<Point>> points = new ArrayList<>();
-        ArrayList<Optional<Boolean>> states = new ArrayList<>();
+        ArrayList<Point> points = new ArrayList<>();
+        ArrayList<Boolean> states = new ArrayList<>();
         boolean startedLeft;
     }
 
@@ -69,7 +70,6 @@ public class Visualization extends JPanel {
 
         String line;
         MatchData currentMatch = null;
-        int lineCount = 0;
 
         while ((line = br.readLine()) != null) {
             if (line.startsWith("---")) {
@@ -77,7 +77,6 @@ public class Visualization extends JPanel {
                     allMatches.add(currentMatch);
                 }
                 currentMatch = new MatchData();
-                lineCount = 0;
                 continue;
             }
 
@@ -89,23 +88,25 @@ public class Visualization extends JPanel {
 
             if (values.length == 3) {
                 try {
-                    if (lineCount % 2 == 0) { // Skip every other line to reduce the number of points drawn and improve visualization performance (optional, can be removed if you want to draw every point)
-                        boolean isAuto = Boolean.parseBoolean(values[0]);
-                        double x = Double.parseDouble(values[1]);
-                        double y = Double.parseDouble(values[2]);
-                        currentMatch.points.add(Optional.of(new Point(x, y)));
-                        currentMatch.states.add(Optional.of(isAuto));
+                    boolean isAuto = Boolean.parseBoolean(values[0]);
+                    Point newPoint = new Point(Double.parseDouble(values[1]), Double.parseDouble(values[2]));
 
-                        if (currentMatch.points.size() == 1) {
-                            currentMatch.startedLeft = x < 0.5;
+                    if (!currentMatch.points.isEmpty()) {
+                        Point lastPoint = currentMatch.points.get(currentMatch.points.size() - 1);
+                        if (newPoint.distanceTo(lastPoint) < MIN_DIST) {
+                            continue; // Skip this point since it's too close to the last one
                         }
                     }
-                    lineCount++;
+
+                    currentMatch.points.add(newPoint);
+                    currentMatch.states.add(isAuto);
+
+                    if (currentMatch.points.size() == 1) {
+                        currentMatch.startedLeft = newPoint.getX() < 0.5;
+                    }
 
                 } catch (Exception e) {
                     System.out.println("Error parsing line: \"" + line + "\". Skipping this line.");
-                    currentMatch.points.add(Optional.empty());
-                    currentMatch.states.add(Optional.empty());
                 }
             }
         }
@@ -232,13 +233,13 @@ public class Visualization extends JPanel {
         for (MatchData m : allMatches) {
             if (!matchIncluded(m)) continue;
             for (int i = 0; i < m.points.size() && i < m.states.size(); i++) {
-                Optional<Point> p = m.points.get(i);
-                Optional<Boolean> st = m.states.get(i);
-                if (!p.isPresent() || !st.isPresent()) continue;
-                boolean isAut = st.get();
+                Point p = m.points.get(i);
+                Boolean st = m.states.get(i);
+                if (p == null || st == null) continue;
+                boolean isAut = st;
                 if ((auto && tele) || (auto && isAut) || (tele && !isAut)) {
-                    int cx = Math.min(HEAT_W - 1, Math.max(0, (int) (p.get().getX() * HEAT_W)));
-                    int cy = Math.min(HEAT_H - 1, Math.max(0, (int) (p.get().getY() * HEAT_H)));
+                    int cx = Math.min(HEAT_W - 1, Math.max(0, (int) (p.getX() * HEAT_W)));
+                    int cy = Math.min(HEAT_H - 1, Math.max(0, (int) (p.getY() * HEAT_H)));
                     density[cx][cy] += 1.0f;
                 }
             }
@@ -347,40 +348,36 @@ public class Visualization extends JPanel {
         for (MatchData m : allMatches) {
             if (!matchIncluded(m)) continue;
 
-            Optional<Point> prevPoint = Optional.empty();
-            Optional<Boolean> prevIsAuto = Optional.empty();
+            Point prevPoint = m.points.get(0);
+            boolean prevIsAuto = m.states.get(0);
+
+            g.setColor(Color.YELLOW);
+            g.fillOval((int) (WIDTH * prevPoint.getX()) - 8, (int) (HEIGHT * prevPoint.getY()) - 8, 16, 16);
 
             for (int i = 0; i < m.points.size() && i < m.states.size(); i++) {
-                Optional<Point> point = m.points.get(i);
-                Optional<Boolean> isAuto = m.states.get(i);
+                Point point = m.points.get(i);
+                boolean isAuto = m.states.get(i);
 
-                if (point.isPresent() && isAuto.isPresent() && prevPoint.isPresent() && prevIsAuto.isPresent()) {
-                    int x1 = (int) (prevPoint.get().getX() * WIDTH);
-                    int y1 = (int) (prevPoint.get().getY() * HEIGHT);
-                    int x2 = (int) (point.get().getX() * WIDTH);
-                    int y2 = (int) (point.get().getY() * HEIGHT);
-                    if (isAuto.get() && prevIsAuto.get()) {
-                        g.setColor(Color.PINK);
-                        if (auto) {
-                            g2d.setPaint(new GradientPaint(x1, y1, Color.PINK, x2, y2, Color.RED, false));
-                            g2d.drawLine(x1, y1, x2, y2);
-                        }
-                    } else if (!isAuto.get() && !prevIsAuto.get()) {
-                        g.setColor(Color.CYAN);
-                        if (tele) {
-                            g2d.setPaint(new GradientPaint(x1, y1, Color.CYAN, x2, y2, Color.BLUE, false));
-                            g2d.drawLine(x1, y1, x2, y2);
-                        }
-                    } else {
-                        g.setColor(Color.ORANGE);
-                        g2d.setPaint(new GradientPaint(x1, y1, Color.YELLOW, x2, y2, Color.ORANGE, false));
+                int x1 = (int) (prevPoint.getX() * WIDTH);
+                int y1 = (int) (prevPoint.getY() * HEIGHT);
+                int x2 = (int) (point.getX() * WIDTH);
+                int y2 = (int) (point.getY() * HEIGHT);
+                if (isAuto && prevIsAuto) {
+                    g.setColor(Color.PINK);
+                    if (auto) {
+                        g2d.setPaint(new GradientPaint(x1, y1, Color.PINK, x2, y2, Color.RED, false));
                         g2d.drawLine(x1, y1, x2, y2);
                     }
-                } else if (point.isPresent()){
-                    int x = (int) (point.get().getX() * WIDTH);
-                    int y = (int) (point.get().getY() * HEIGHT);
-                    g.setColor(Color.YELLOW);
-                    g2d.fillOval(x - 15, y - 15, 30, 30);
+                } else if (!isAuto && !prevIsAuto) {
+                    g.setColor(Color.CYAN);
+                    if (tele) {
+                        g2d.setPaint(new GradientPaint(x1, y1, Color.CYAN, x2, y2, Color.BLUE, false));
+                        g2d.drawLine(x1, y1, x2, y2);
+                    }
+                } else {
+                    g.setColor(Color.ORANGE);
+                    g2d.setPaint(new GradientPaint(x1, y1, Color.YELLOW, x2, y2, Color.ORANGE, false));
+                    g2d.drawLine(x1, y1, x2, y2);
                 }
                 prevPoint = point;
                 prevIsAuto = isAuto;
