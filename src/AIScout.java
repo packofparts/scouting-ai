@@ -114,10 +114,10 @@ public class AIScout extends JPanel{
 
         System.out.println("When did teleop start? Enter the first second of teleop in seconds (e.g. 25), or press Enter to use Auto/Robot class timing from detections:");
         String teleopLine = scanner.nextLine().trim();
-        double manualTeleopStartSec = -1;
+        int manualTeleopStartSec = 0;
         if (!teleopLine.isEmpty()) {
             try {
-                manualTeleopStartSec = Double.parseDouble(teleopLine);
+                manualTeleopStartSec = Integer.parseInt(teleopLine);
                 if (manualTeleopStartSec < 0) {
                     scanner.close();
                     throw new IllegalStateException("Teleop start time cannot be negative. Exiting.");
@@ -169,6 +169,7 @@ public class AIScout extends JPanel{
 
             startingDetections = detections.get(firstFrameIndex);
         } catch (IllegalStateException e){
+            firstFrameIndex = 0;
             System.out.println("Cannot automatically confirm starting point. Please manually input the starting locations of the robots in the format specified below. If a robot no shows, do not enter a y coordinate for it.");
             System.out.println("Please input the y coordinates (0.0 - 1.0, where 0.0 is closest to the far wall of the field) of the starting locations of robots towards the LEFT side of the field, separated by spaces:");
             String leftInput = scanner.nextLine();
@@ -356,14 +357,14 @@ public class AIScout extends JPanel{
                             // indices correct, which is done below
                         }
                     }
-                    
+                    if (manualTeleopStartSec >= 0 && det.getFrameId() / det.getFrameFps() < manualTeleopStartSec) {
+                        frameDetections.add(Optional.empty());
+                    }
                     allDetections.add(frameDetections);
                     prevFrame = det.getFrameId();
                 } else {
                     ArrayList<Optional<Point>> frameDetections = allDetections.get(allDetections.size() - 1);
-                    if (manualTeleopStartSec >= 0 && det.getFrameId() / det.getFrameFps() < manualTeleopStartSec) {
-                        frameDetections.add(Optional.empty());
-                    }
+                    
                     if (det.getClassName().equals("Auto")) {
                         frameDetections.add(Optional.empty());
                     } else if (det.getClassName().equals("Robot")) {
