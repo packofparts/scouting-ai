@@ -55,9 +55,10 @@ def json_sink_callback(prediction, video_frame):
         "frame_width": len(video_frame.image[0]),
         "frame_height": len(video_frame.image),
         "frame_id": video_frame.frame_id,
+        "frame_fps": video_frame.fps,
         #"timestamp": video_frame.timestamp.isoformat(),
     }
-
+    print(video_frame)
     output.append(detections, custom_data=sink_data)
 
     percent = video_frame.frame_id/total_frames 
