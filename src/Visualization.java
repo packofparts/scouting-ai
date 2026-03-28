@@ -36,7 +36,7 @@ public class Visualization extends JPanel {
 
     private static ArrayList<MatchData> allMatches = new ArrayList<>();
 
-    private static final double MIN_DIST = 0.0089;// Minimum distance in field coordinates (0..1) for a point to be considered "visited" for heatmap purposes
+    private static final double MIN_DIST = 0.0089;// Minimum distance in field coordinates (0.0 - 1.0) for a point to be considered "visited" for heatmap purposes
 
     private static final int HEAT_W = 200;
     private static final int HEAT_H = 120;
