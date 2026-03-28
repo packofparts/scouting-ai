@@ -64,6 +64,8 @@ public class AIScout extends JPanel{
     }
     protected static final boolean RED_ON_LEFT = true; // Whether the red alliance is on the left side of the field in the video. If false, then the blue alliance is on the left.
 
+    private static final double DETECTOR_VIDEO_FPS = 30.0;
+
     public AIScout() {
         //Empty constructor for JPanel subclass
     }
@@ -73,7 +75,6 @@ public class AIScout extends JPanel{
         if (args.length != 6) {
             throw new IllegalArgumentException("Exactly 6 team numbers must be provided as arguments, not " + args.length);
         }
-        ArrayList<ArrayList<Optional<Point>>> detections = detect();
 
         JPanel confirm = new AIScout();
 
@@ -109,12 +110,27 @@ public class AIScout extends JPanel{
             TOP_RIGHT    = new Point(result[4], result[5]);
             BOTTOM_RIGHT = new Point(result[6], result[7]);
             System.out.println("Field calibration saved successfully! Continuing with new calibration values...");
-            // Re-run detection with updated calibration
-            detections = detect();
         } else {
             frame.dispose();
         }
-        
+
+        System.out.println("When did teleop start? Enter the first second of teleop in seconds (e.g. 25), or press Enter to use Auto/Robot class timing from detections:");
+        String teleopLine = scanner.nextLine().trim();
+        double manualTeleopStartSec = -1;
+        if (!teleopLine.isEmpty()) {
+            try {
+                manualTeleopStartSec = Double.parseDouble(teleopLine);
+                if (manualTeleopStartSec < 0) {
+                    scanner.close();
+                    throw new IllegalStateException("Teleop start time cannot be negative. Exiting.");
+                }
+            } catch (NumberFormatException ex) {
+                scanner.close();
+                throw new IllegalStateException("Invalid teleop start time: \"" + teleopLine + "\". Enter a number in seconds or leave blank. Exiting.");
+            }
+        }
+
+        ArrayList<ArrayList<Optional<Point>>> detections = detect(manualTeleopStartSec);
 
         // Finds the first frame with 6 robots detected
         int firstFrameIndex = 0;
@@ -287,7 +303,8 @@ public class AIScout extends JPanel{
                 + Math.round((System.currentTimeMillis() - time) / 100.0) / 10.0 + " seconds)");
     }
 
-    public static ArrayList<ArrayList<Optional<Point>>> detect() {
+    
+    public static ArrayList<ArrayList<Optional<Point>>> detect(double manualTeleopStartSec) {
         // Run detector, then read the output
         autoFrameIndices.clear();
         teleFrameIndices.clear();
@@ -341,13 +358,16 @@ public class AIScout extends JPanel{
                             // indices correct, which is done below
                         }
                     }
+                    
                     allDetections.add(frameDetections);
                     prevFrame = det.getFrameId();
                 } else {
                     ArrayList<Optional<Point>> frameDetections = allDetections.get(allDetections.size() - 1);
+                    if (manualTeleopStartSec >= 0 && det.getFrameId() / DETECTOR_VIDEO_FPS < manualTeleopStartSec) {
+                        frameDetections.add(Optional.empty());
+                    }
                     if (det.getClassName().equals("Auto")) {
                         frameDetections.add(Optional.empty());
-
                     } else if (det.getClassName().equals("Robot")) {
                         Optional<Double> xCoord = estimateXcoord(new Point(centerX, centerY), TOP_LEFT, TOP_RIGHT,
                                 BOTTOM_LEFT, BOTTOM_RIGHT, 10, 0, 1);
