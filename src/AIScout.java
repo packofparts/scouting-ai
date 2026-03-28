@@ -64,8 +64,6 @@ public class AIScout extends JPanel{
     }
     protected static final boolean RED_ON_LEFT = true; // Whether the red alliance is on the left side of the field in the video. If false, then the blue alliance is on the left.
 
-    private static final double DETECTOR_VIDEO_FPS = 30.0;
-
     public AIScout() {
         //Empty constructor for JPanel subclass
     }
@@ -322,7 +320,7 @@ public class AIScout extends JPanel{
                         detectionObject.getDouble("y_max"), detectionObject.getString("class_name"),
                         detectionObject.getDouble("confidence"), detectionObject.getString("tracker_id"),
                         detectionObject.getInt("frame_id"), detectionObject.getInt("class_id"),
-                        detectionObject.getInt("frame_width"), detectionObject.getInt("frame_height"));
+                        detectionObject.getInt("frame_width"), detectionObject.getInt("frame_height"), detectionObject.getDouble("frame_fps"));
                 detections.add(detection);
             }
 
@@ -363,7 +361,7 @@ public class AIScout extends JPanel{
                     prevFrame = det.getFrameId();
                 } else {
                     ArrayList<Optional<Point>> frameDetections = allDetections.get(allDetections.size() - 1);
-                    if (manualTeleopStartSec >= 0 && det.getFrameId() / DETECTOR_VIDEO_FPS < manualTeleopStartSec) {
+                    if (manualTeleopStartSec >= 0 && det.getFrameId() / det.getFrameFps() < manualTeleopStartSec) {
                         frameDetections.add(Optional.empty());
                     }
                     if (det.getClassName().equals("Auto")) {

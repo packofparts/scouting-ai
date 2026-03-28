@@ -10,9 +10,9 @@ public class Detection {
     protected int frameHeight;
     protected int frameId;
     protected int classId;
-    
+    protected double frameFps;
 
-    public Detection(double xMin, double yMin, double xMax, double yMax, String className, double confidence, String trackerId, int frameId, int classId, int frameWidth, int frameHeight){
+    public Detection(double xMin, double yMin, double xMax, double yMax, String className, double confidence, String trackerId, int frameId, int classId, int frameWidth, int frameHeight, double frameFps){
         this.xMin = xMin;
         this.yMin = yMin;
         this.xMax = xMax;
@@ -24,6 +24,7 @@ public class Detection {
         this.classId = classId;
         this.frameWidth = frameWidth;
         this.frameHeight = frameHeight;
+        this.frameFps = frameFps;
     }
     public double getXMin(){
         return xMin;
@@ -58,4 +59,7 @@ public class Detection {
     public int getFrameHeight() {
         return frameHeight;
     }    
+    public double getFrameFps(){
+        return frameFps;
+    }
 }
