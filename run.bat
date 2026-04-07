@@ -27,6 +27,8 @@ SET /p detect=
 
 IF /I "%detect%"=="y" (
 
+    set ONNXRUNTIME_EXECUTION_PROVIDERS=['DmlExecutionProvider']
+
     call python detector.py
 
     IF !ErrorLevel! NEQ 0 (
