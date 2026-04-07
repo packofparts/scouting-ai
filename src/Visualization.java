@@ -86,10 +86,10 @@ public class Visualization extends JPanel {
 
             String[] values = line.split(",");
 
-            if (values.length == 3) {
+            if (values.length == 4) {
                 try {
                     boolean isAuto = Boolean.parseBoolean(values[0]);
-                    Point newPoint = new Point(Double.parseDouble(values[1]), Double.parseDouble(values[2]));
+                    Point newPoint = new Point(Double.parseDouble(values[1]), Double.parseDouble(values[2]), Double.parseDouble(values[3]));
 
                     if (!currentMatch.points.isEmpty()) {
                         Point lastPoint = currentMatch.points.get(currentMatch.points.size() - 1);

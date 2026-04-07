@@ -51,15 +51,15 @@ public class AIScout extends JPanel{
     static {
         double[] cal = FieldCalibrator.loadCalibration();
         if (cal != null) {
-            TOP_LEFT     = new Point(cal[0], cal[1]);
-            BOTTOM_LEFT  = new Point(cal[2], cal[3]);
-            TOP_RIGHT    = new Point(cal[4], cal[5]);
-            BOTTOM_RIGHT = new Point(cal[6], cal[7]);
+            TOP_LEFT     = new Point(cal[0], cal[1], 0);
+            BOTTOM_LEFT  = new Point(cal[2], cal[3], 0);
+            TOP_RIGHT    = new Point(cal[4], cal[5], 0);
+            BOTTOM_RIGHT = new Point(cal[6], cal[7], 0);
         } else {
-            TOP_LEFT     = new Point(DEFAULT_TL_X, DEFAULT_TL_Y);
-            BOTTOM_LEFT  = new Point(DEFAULT_BL_X, DEFAULT_BL_Y);
-            TOP_RIGHT    = new Point(DEFAULT_TR_X, DEFAULT_TR_Y);
-            BOTTOM_RIGHT = new Point(DEFAULT_BR_X, DEFAULT_BR_Y);
+            TOP_LEFT     = new Point(DEFAULT_TL_X, DEFAULT_TL_Y, 0);
+            BOTTOM_LEFT  = new Point(DEFAULT_BL_X, DEFAULT_BL_Y, 0);
+            TOP_RIGHT    = new Point(DEFAULT_TR_X, DEFAULT_TR_Y, 0);
+            BOTTOM_RIGHT = new Point(DEFAULT_BR_X, DEFAULT_BR_Y, 0);
         }
     }
     protected static final boolean RED_ON_LEFT = true; // Whether the red alliance is on the left side of the field in the video. If false, then the blue alliance is on the left.
@@ -103,10 +103,10 @@ public class AIScout extends JPanel{
                 throw new IllegalStateException("Field calibration was cancelled. Exiting.");
             }
             // Update the calibration points with the new values
-            TOP_LEFT     = new Point(result[0], result[1]);
-            BOTTOM_LEFT  = new Point(result[2], result[3]);
-            TOP_RIGHT    = new Point(result[4], result[5]);
-            BOTTOM_RIGHT = new Point(result[6], result[7]);
+            TOP_LEFT     = new Point(result[0], result[1], 0);
+            BOTTOM_LEFT  = new Point(result[2], result[3], 0);
+            TOP_RIGHT    = new Point(result[4], result[5], 0);
+            BOTTOM_RIGHT = new Point(result[6], result[7], 0);
             System.out.println("Field calibration saved successfully! Continuing with new calibration values...");
         } else {
             frame.dispose();
@@ -181,7 +181,7 @@ public class AIScout extends JPanel{
             for (String coord : leftCoords) {
                 try {
                     double y = Double.parseDouble(coord);
-                    startingDetections.add(Optional.of(new Point(0.25, y)));
+                    startingDetections.add(Optional.of(new Point(0.25, y, 0)));
                     if (y < 0 || y > 1) {
                         scanner.close();
                         throw new IllegalStateException("Invalid coordinate: " + coord + ". Y coordinates must be between 0.0 and 1.0. Exiting.");
@@ -202,7 +202,7 @@ public class AIScout extends JPanel{
             for (String coord : rightCoords) {
                 try {
                     double y = Double.parseDouble(coord);
-                    startingDetections.add(Optional.of(new Point(0.75, y)));
+                    startingDetections.add(Optional.of(new Point(0.75, y, 0)));
                     if (y < 0 || y > 1) {
                         scanner.close();
                         throw new IllegalStateException("Invalid coordinate: " + coord + ". Y coordinates must be between 0.0 and 1.0. Exiting.");
@@ -344,12 +344,12 @@ public class AIScout extends JPanel{
                         frameDetections.add(Optional.empty());
 
                     } else if (det.getClassName().equals("Robot")) {
-                        Optional<Double> xCoord = estimateXcoord(new Point(centerX, centerY), TOP_LEFT, TOP_RIGHT,
+                        Optional<Double> xCoord = estimateXcoord(new Point(centerX, centerY, det.getFrameId() / det.getFrameFps()), TOP_LEFT, TOP_RIGHT,
                                 BOTTOM_LEFT, BOTTOM_RIGHT, 10, 0, 1);
-                        Optional<Double> yCoord = estimateYcoord(new Point(centerX, centerY), TOP_LEFT, TOP_RIGHT,
+                        Optional<Double> yCoord = estimateYcoord(new Point(centerX, centerY, det.getFrameId() / det.getFrameFps()), TOP_LEFT, TOP_RIGHT,
                                 BOTTOM_LEFT, BOTTOM_RIGHT, 10, 0, 1);
                         if (xCoord.isPresent() && yCoord.isPresent()) {
-                            frameDetections.add(Optional.of(new Point(xCoord.get(), yCoord.get())));
+                            frameDetections.add(Optional.of(new Point(xCoord.get(), yCoord.get(), det.getFrameId() / det.getFrameFps())));
                         } else {
                             // Do nothing, cuz if the robot is outside the field, then we don't want to add
                             // it to the detections
@@ -368,12 +368,12 @@ public class AIScout extends JPanel{
                     if (det.getClassName().equals("Auto")) {
                         frameDetections.add(Optional.empty());
                     } else if (det.getClassName().equals("Robot")) {
-                        Optional<Double> xCoord = estimateXcoord(new Point(centerX, centerY), TOP_LEFT, TOP_RIGHT,
+                        Optional<Double> xCoord = estimateXcoord(new Point(centerX, centerY, det.getFrameId() / det.getFrameFps()), TOP_LEFT, TOP_RIGHT,
                                 BOTTOM_LEFT, BOTTOM_RIGHT, 10, 0, 1);
-                        Optional<Double> yCoord = estimateYcoord(new Point(centerX, centerY), TOP_LEFT, TOP_RIGHT,
+                        Optional<Double> yCoord = estimateYcoord(new Point(centerX, centerY, det.getFrameId() / det.getFrameFps()), TOP_LEFT, TOP_RIGHT,
                                 BOTTOM_LEFT, BOTTOM_RIGHT, 10, 0, 1);
                         if (xCoord.isPresent() && yCoord.isPresent()) {
-                            frameDetections.add(Optional.of(new Point(xCoord.get(), yCoord.get())));
+                            frameDetections.add(Optional.of(new Point(xCoord.get(), yCoord.get(), det.getFrameId() / det.getFrameFps())));
                         } else {
                             // Do nothing, cuz if the robot is outside the field, then we don't want to add
                             // it to the detections

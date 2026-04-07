@@ -58,7 +58,7 @@ public class Line {
         }
         double x = (l.b - b) / (m - l.m);
         double y = getY(x);
-        return new Point(x, y);
+        return new Point(x, y,0);
     }
 
 }
