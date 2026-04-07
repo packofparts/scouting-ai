@@ -23,6 +23,7 @@ import java.awt.Graphics2D;
 
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 
 public class Visualization extends JPanel {
@@ -33,6 +34,8 @@ public class Visualization extends JPanel {
 
     private static boolean auto = false;
     private static boolean tele = false;
+    private static double currentTime = 0.0;
+    private static final double TIME_STEP = 0.167; // 10ms
 
     private static ArrayList<MatchData> allMatches = new ArrayList<>();
 
@@ -95,8 +98,24 @@ public class Visualization extends JPanel {
                         Point lastPoint = currentMatch.points.get(currentMatch.points.size() - 1);
                         if (newPoint.distanceTo(lastPoint) < MIN_DIST) {
                             continue; // Skip this point since it's too close to the last one
+                            
                         }
+
+                        while (currentTime < newPoint.getTime()) {
+                            double percentage = (currentTime - lastPoint.getTime()) / (newPoint.getTime() - lastPoint.getTime());
+                            double x = lastPoint.getX() + (newPoint.getX() - lastPoint.getX()) * percentage;
+                            double y = lastPoint.getY() + (newPoint.getY() - lastPoint.getY()) * percentage;
+                            currentMatch.points.add(new Point(x, y, currentTime));
+                            currentMatch.states.add(isAuto); // Add the state of the last point to the new point
+                            currentTime += TIME_STEP;
+                        }
+                        continue;
+
+                    } else {
+                        currentTime = newPoint.getTime(); // Set current time to the time of the new point
                     }
+
+
 
                     currentMatch.points.add(newPoint);
                     currentMatch.states.add(isAuto);
@@ -109,6 +128,7 @@ public class Visualization extends JPanel {
                     System.out.println("Error parsing line: \"" + line + "\". Skipping this line.");
                 }
             }
+           
         }
 
         if (currentMatch != null && !currentMatch.points.isEmpty()) {
