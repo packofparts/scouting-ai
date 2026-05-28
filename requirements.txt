@@ -23,3 +23,5 @@ roboflow
 #   Linux: sudo apt install ffmpeg  # Debian/Ubuntu
 #          sudo yum install ffmpeg  # RHEL/CentOS/Fedora
 #          sudo pacman -S ffmpeg    # Arch Linux
+#
+# On Windows, it is also recommended to install DirectML (pip install onnxruntime-directml) for improved performance of the inference engine.

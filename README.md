@@ -74,7 +74,7 @@ chmod +x run.sh
 
 7. All match videos and images used in this repository are sourced from [PNW District 2025 Sammamish Event, Lower Bracket, Round 2, Match 6 of the FIRST Robotics Competition](https://www.youtube.com/watch?v=XZDd_Yerab0). 
 
-8. The field image used for visualization (field.png) is sourced from [the FRC game manual](https://firstfrc.blob.core.windows.net/frc2025/Manual/2025GameManual.pdf). 
+8. The field image used for visualization (field.png) is sourced from [the FRC game manual](https://firstfrc.blob.core.windows.net/frc2026/Manual/2026GameManual.pdf). 
 
 9. *Some AI assistance is used in this project.*
 

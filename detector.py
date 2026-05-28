@@ -27,7 +27,7 @@ import moviepy as mp
 enablePrint()
 
 
-model_id = "1294-ai-scouting/10"
+model_id = "1294-ai-scouting/14"
 input_video_path = "matches/match.mp4"
 output_path = "temp/output.json"
 
@@ -35,7 +35,7 @@ target_fps = 30
 clip = mp.VideoFileClip(input_video_path)
 total_frames = clip.n_frames
 
-clip.save_frame("matches/cover.png", t=0)
+clip.save_frame("matches/cover.png", t=10)
 
 
 output = sv.JSONSink(output_path)
@@ -55,6 +55,7 @@ def json_sink_callback(prediction, video_frame):
         "frame_width": len(video_frame.image[0]),
         "frame_height": len(video_frame.image),
         "frame_id": video_frame.frame_id,
+        "frame_fps": video_frame.fps,
         #"timestamp": video_frame.timestamp.isoformat(),
     }
 

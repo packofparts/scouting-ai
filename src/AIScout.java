@@ -32,13 +32,36 @@ public class AIScout extends JPanel{
     // Relative locations of field joints (i.e. 0.5 is half of the screen)
     // All x vals must differ to avoid errors in pose estimation
 
-    // Currently calibrated for PNW District Sammamish Event 2025
+    // Currently calibrated for PNW District Bnuuy Lake Event 2026
     // Can be easily changed for other fields by changing these 4 points
+    // Or by using the interactive field calibrator (drag-and-drop GUI)
 
-    private static final Point TOP_LEFT = new Point(0.19620, 0.19515);
-    private static final Point BOTTOM_LEFT = new Point(0.02259, 0.69198);
-    private static final Point TOP_RIGHT = new Point(0.84483, 0.21941);
-    private static final Point BOTTOM_RIGHT = new Point(0.98811, 0.72152);
+    // Default values (used if no calibration file exists)
+    private static final double DEFAULT_TL_X = 0.22063, DEFAULT_TL_Y = 0.23806;
+    private static final double DEFAULT_BL_X = 0.06609, DEFAULT_BL_Y = 0.67778;
+    private static final double DEFAULT_TR_X = 0.77969, DEFAULT_TR_Y = 0.22639;
+    private static final double DEFAULT_BR_X = 0.94609, DEFAULT_BR_Y = 0.64167;
+
+    // Active calibration points (loaded from file or defaults)
+    private static Point TOP_LEFT;
+    private static Point BOTTOM_LEFT;
+    private static Point TOP_RIGHT;
+    private static Point BOTTOM_RIGHT;
+
+    static {
+        double[] cal = FieldCalibrator.loadCalibration();
+        if (cal != null) {
+            TOP_LEFT     = new Point(cal[0], cal[1], 0);
+            BOTTOM_LEFT  = new Point(cal[2], cal[3], 0);
+            TOP_RIGHT    = new Point(cal[4], cal[5], 0);
+            BOTTOM_RIGHT = new Point(cal[6], cal[7], 0);
+        } else {
+            TOP_LEFT     = new Point(DEFAULT_TL_X, DEFAULT_TL_Y, 0);
+            BOTTOM_LEFT  = new Point(DEFAULT_BL_X, DEFAULT_BL_Y, 0);
+            TOP_RIGHT    = new Point(DEFAULT_TR_X, DEFAULT_TR_Y, 0);
+            BOTTOM_RIGHT = new Point(DEFAULT_BR_X, DEFAULT_BR_Y, 0);
+        }
+    }
     protected static final boolean RED_ON_LEFT = true; // Whether the red alliance is on the left side of the field in the video. If false, then the blue alliance is on the left.
 
     public AIScout() {
@@ -50,7 +73,6 @@ public class AIScout extends JPanel{
         if (args.length != 6) {
             throw new IllegalArgumentException("Exactly 6 team numbers must be provided as arguments, not " + args.length);
         }
-        ArrayList<ArrayList<Optional<Point>>> detections = detect();
 
         JPanel confirm = new AIScout();
 
@@ -68,12 +90,45 @@ public class AIScout extends JPanel{
 
         Scanner scanner = new Scanner(System.in);
         if (!scanner.nextLine().equalsIgnoreCase("y")) {
-            scanner.close();
             frame.dispose();
-            throw new IllegalStateException("Field not properly aligned. Please adjust TOP_LEFT, BOTTOM_LEFT, TOP_RIGHT, BOTTOM_RIGHT, and RED_ON_LEFT so that the green lines are exactly on the field boundaries and the alliances match, then try again.");
+            System.out.println("Opening field calibration tool... Drag the yellow dots to the field corners, then click Save & Exit.");
+            double[] result = FieldCalibrator.launch(
+                TOP_LEFT.getX(), TOP_LEFT.getY(),
+                BOTTOM_LEFT.getX(), BOTTOM_LEFT.getY(),
+                TOP_RIGHT.getX(), TOP_RIGHT.getY(),
+                BOTTOM_RIGHT.getX(), BOTTOM_RIGHT.getY()
+            );
+            if (result == null) {
+                scanner.close();
+                throw new IllegalStateException("Field calibration was cancelled. Exiting.");
+            }
+            // Update the calibration points with the new values
+            TOP_LEFT     = new Point(result[0], result[1], 0);
+            BOTTOM_LEFT  = new Point(result[2], result[3], 0);
+            TOP_RIGHT    = new Point(result[4], result[5], 0);
+            BOTTOM_RIGHT = new Point(result[6], result[7], 0);
+            System.out.println("Field calibration saved successfully! Continuing with new calibration values...");
+        } else {
+            frame.dispose();
         }
-        frame.dispose();
-        
+
+        System.out.println("When did teleop start? Enter the first second of teleop in seconds (e.g. 25), or press Enter to use Auto/Robot class timing from detections:");
+        String teleopLine = scanner.nextLine().trim();
+        int manualTeleopStartSec = 0;
+        if (!teleopLine.isEmpty()) {
+            try {
+                manualTeleopStartSec = Integer.parseInt(teleopLine);
+                if (manualTeleopStartSec < 0) {
+                    scanner.close();
+                    throw new IllegalStateException("Teleop start time cannot be negative. Exiting.");
+                }
+            } catch (NumberFormatException ex) {
+                scanner.close();
+                throw new IllegalStateException("Invalid teleop start time: \"" + teleopLine + "\". Enter a number in seconds or leave blank. Exiting.");
+            }
+        }
+
+        ArrayList<ArrayList<Optional<Point>>> detections = detect(manualTeleopStartSec);
 
         // Finds the first frame with 6 robots detected
         int firstFrameIndex = 0;
@@ -93,29 +148,72 @@ public class AIScout extends JPanel{
         }
         FRCRobot[] robots = new FRCRobot[amountShows];
         int insertionIndex = 0;
-        while (firstFrameIndex < detections.size() && detections.get(firstFrameIndex).size() != amountShows) {
-            firstFrameIndex++;
-        }
-        if (firstFrameIndex >= detections.size()) {
+        ArrayList<Optional<Point>> startingDetections = new ArrayList<>();
+        try {
+            while (firstFrameIndex < detections.size() && detections.get(firstFrameIndex).size() != amountShows) {
+                firstFrameIndex++;
+            }
+            if (firstFrameIndex >= detections.size()) {
+                throw new IllegalStateException("Cannot confirm starting point. No frame with " + amountShows + " robots detected found in the video. Please abandon this video and try another one, or check that the detector is working correctly. Exiting");
+            }
+
+
+            System.out.println("First frame with " + amountShows + " robots detected is at index " + firstFrameIndex + " (which is about " + Math.round(firstFrameIndex * 1000.0 / detections.size()) / 10.0 + "% of the video). Confirm as starting point? (y/n)");
+
+            if (!scanner.nextLine().equalsIgnoreCase("y")) {
+                throw new IllegalStateException("Starting point not confirmed. Exiting.");
+            }
             scanner.close();
-            throw new IllegalStateException("Cannot confirm starting point. No frame with " + amountShows + " robots detected found in the video. Please abandon this video and try another one, or check that the detector is working correctly. Exiting");
-        }
 
+            System.out.println("Starting point confirmed. Initializing robots and writing data...");
 
-        System.out.println("First frame with " + amountShows + " robots detected is at index " + firstFrameIndex + " (which is about " + Math.round(firstFrameIndex * 1000.0 / detections.size()) / 10.0 + "% of the video). Confirm as starting point? (y/n)");
+            startingDetections = detections.get(firstFrameIndex);
+        } catch (IllegalStateException e){
+            firstFrameIndex = 0;
+            System.out.println("Cannot automatically confirm starting point. Please manually input the starting locations of the robots in the format specified below. If a robot no shows, do not enter a y coordinate for it.");
+            System.out.println("Please input the y coordinates (0.0 - 1.0, where 0.0 is closest to the far wall of the field) of the starting locations of robots towards the LEFT side of the field, separated by spaces:");
+            String leftInput = scanner.nextLine();
+            String[] leftCoords = leftInput.trim().split(" ");
+            if (leftCoords.length != leftShows) {
+                scanner.close();
+                throw new IllegalStateException("Number of coordinates entered does not match number of robot team numbers inputted on the left side. Exiting.");
+            }
+            for (String coord : leftCoords) {
+                try {
+                    double y = Double.parseDouble(coord);
+                    startingDetections.add(Optional.of(new Point(0.25, y, 0)));
+                    if (y < 0 || y > 1) {
+                        scanner.close();
+                        throw new IllegalStateException("Invalid coordinate: " + coord + ". Y coordinates must be between 0.0 and 1.0. Exiting.");
+                    }
+                } catch (NumberFormatException ex) {
+                    scanner.close();
+                    throw new IllegalStateException("Invalid coordinate: " + coord + ". Please enter valid numbers for coordinates. Exiting.");
+                }
+            }
 
-        if (!scanner.nextLine().equalsIgnoreCase("y")) {
-            scanner.close();
-            throw new IllegalStateException("Starting point not confirmed. Exiting.");
-        }
-        scanner.close();
-
+            System.out.println("Please input the y coordinates (0.0 - 1.0, where 0.0 is closest to the far wall of the field) of the starting locations of robots towards the RIGHT side of the field, separated by spaces:");
+            String rightInput = scanner.nextLine();
+            String[] rightCoords = rightInput.trim().split(" ");
+            if (rightCoords.length != rightShows) {
+                scanner.close();
+                throw new IllegalStateException("Number of coordinates entered does not match number of robot team numbers inputted on the right side. Exiting.");
+            }
+            for (String coord : rightCoords) {
+                try {
+                    double y = Double.parseDouble(coord);
+                    startingDetections.add(Optional.of(new Point(0.75, y, 0)));
+                    if (y < 0 || y > 1) {
+                        scanner.close();
+                        throw new IllegalStateException("Invalid coordinate: " + coord + ". Y coordinates must be between 0.0 and 1.0. Exiting.");
+                    }
+                } catch (NumberFormatException ex) {
+                    scanner.close();
+                    throw new IllegalStateException("Invalid coordinate: " + coord + ". Please enter valid numbers for coordinates. Exiting.");
+                }
+            }
+        } 
         long time = System.currentTimeMillis();
-
-        System.out.println("Starting point confirmed. Initializing robots and writing data...");
-
-        ArrayList<Optional<Point>> startingDetections = detections.get(firstFrameIndex);
-
         // Splits frame into left and right halvesby x value, then sorts each half by y
         // value, then concatenates the halves back together. This way, the robots are
         // ordered from top left to bottom right, which should be consistent with the
@@ -204,8 +302,11 @@ public class AIScout extends JPanel{
                 + Math.round((System.currentTimeMillis() - time) / 100.0) / 10.0 + " seconds)");
     }
 
-    public static ArrayList<ArrayList<Optional<Point>>> detect() {
+    
+    public static ArrayList<ArrayList<Optional<Point>>> detect(double manualTeleopStartSec) {
         // Run detector, then read the output
+        autoFrameIndices.clear();
+        teleFrameIndices.clear();
         ArrayList<ArrayList<Optional<Point>>> allDetections = new ArrayList<>();
 
         ArrayList<Detection> detections = new ArrayList<>();
@@ -220,7 +321,7 @@ public class AIScout extends JPanel{
                         detectionObject.getDouble("y_max"), detectionObject.getString("class_name"),
                         detectionObject.getDouble("confidence"), detectionObject.getString("tracker_id"),
                         detectionObject.getInt("frame_id"), detectionObject.getInt("class_id"),
-                        detectionObject.getInt("frame_width"), detectionObject.getInt("frame_height"));
+                        detectionObject.getInt("frame_width"), detectionObject.getInt("frame_height"), detectionObject.getDouble("frame_fps"));
                 detections.add(detection);
             }
 
@@ -243,12 +344,12 @@ public class AIScout extends JPanel{
                         frameDetections.add(Optional.empty());
 
                     } else if (det.getClassName().equals("Robot")) {
-                        Optional<Double> xCoord = estimateXcoord(new Point(centerX, centerY), TOP_LEFT, TOP_RIGHT,
+                        Optional<Double> xCoord = estimateXcoord(new Point(centerX, centerY, det.getFrameId() / det.getFrameFps()), TOP_LEFT, TOP_RIGHT,
                                 BOTTOM_LEFT, BOTTOM_RIGHT, 10, 0, 1);
-                        Optional<Double> yCoord = estimateYcoord(new Point(centerX, centerY), TOP_LEFT, TOP_RIGHT,
+                        Optional<Double> yCoord = estimateYcoord(new Point(centerX, centerY, det.getFrameId() / det.getFrameFps()), TOP_LEFT, TOP_RIGHT,
                                 BOTTOM_LEFT, BOTTOM_RIGHT, 10, 0, 1);
                         if (xCoord.isPresent() && yCoord.isPresent()) {
-                            frameDetections.add(Optional.of(new Point(xCoord.get(), yCoord.get())));
+                            frameDetections.add(Optional.of(new Point(xCoord.get(), yCoord.get(), det.getFrameId() / det.getFrameFps())));
                         } else {
                             // Do nothing, cuz if the robot is outside the field, then we don't want to add
                             // it to the detections
@@ -256,20 +357,23 @@ public class AIScout extends JPanel{
                             // indices correct, which is done below
                         }
                     }
+                    if (manualTeleopStartSec >= 0 && det.getFrameId() / det.getFrameFps() < manualTeleopStartSec) {
+                        frameDetections.add(Optional.empty());
+                    }
                     allDetections.add(frameDetections);
                     prevFrame = det.getFrameId();
                 } else {
                     ArrayList<Optional<Point>> frameDetections = allDetections.get(allDetections.size() - 1);
+                    
                     if (det.getClassName().equals("Auto")) {
                         frameDetections.add(Optional.empty());
-
                     } else if (det.getClassName().equals("Robot")) {
-                        Optional<Double> xCoord = estimateXcoord(new Point(centerX, centerY), TOP_LEFT, TOP_RIGHT,
+                        Optional<Double> xCoord = estimateXcoord(new Point(centerX, centerY, det.getFrameId() / det.getFrameFps()), TOP_LEFT, TOP_RIGHT,
                                 BOTTOM_LEFT, BOTTOM_RIGHT, 10, 0, 1);
-                        Optional<Double> yCoord = estimateYcoord(new Point(centerX, centerY), TOP_LEFT, TOP_RIGHT,
+                        Optional<Double> yCoord = estimateYcoord(new Point(centerX, centerY, det.getFrameId() / det.getFrameFps()), TOP_LEFT, TOP_RIGHT,
                                 BOTTOM_LEFT, BOTTOM_RIGHT, 10, 0, 1);
                         if (xCoord.isPresent() && yCoord.isPresent()) {
-                            frameDetections.add(Optional.of(new Point(xCoord.get(), yCoord.get())));
+                            frameDetections.add(Optional.of(new Point(xCoord.get(), yCoord.get(), det.getFrameId() / det.getFrameFps())));
                         } else {
                             // Do nothing, cuz if the robot is outside the field, then we don't want to add
                             // it to the detections

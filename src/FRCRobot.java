@@ -14,14 +14,23 @@ public class FRCRobot {
         this.pos = pos;
         this.team = team;
         this.positionHistory = new ArrayList<>();
+        updatePosition(pos, true);
     }
     
     public void updatePosition(Point pos, boolean isAuto){//isAuto is true for auto, false for teleop
-        this.pos = pos;
-        if (AIScout.RED_ON_LEFT) {
-            positionHistory.add(isAuto + "," + (1-pos.getX()) + "," + (1-pos.getY())); // Invert x and y coordinates to match visualization orientation (if red is on the left, we want to flip the coordinates to match the visualization's orientation)
+        double time = pos.getTime();
+        double distance = this.pos.distanceTo(pos);
+        double timeDiff = time - this.pos.getTime();
+        double speed = distance / timeDiff;
+        if(speed > 1){
+            return; //Speed is too fast, so we don't update the position
         } else {
-            positionHistory.add(isAuto + "," + pos.getX() + "," + pos.getY());
+            this.pos = pos;
+            if (AIScout.RED_ON_LEFT) {
+                positionHistory.add(isAuto + "," + (1-pos.getX()) + "," + (1-pos.getY()) + "," + time); // Invert x and y coordinates to match visualization orientation (if red is on the left, we want to flip the coordinates to match the visualization's orientation)
+            } else {
+                positionHistory.add(isAuto + "," + pos.getX() + "," + pos.getY() + "," + time);
+            }
         }
     }
     
